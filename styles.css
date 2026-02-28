@@ -1015,9 +1015,10 @@ button:focus-visible {
     inset: 0;
     background: rgba(0,0,0,0.45);
     z-index: 65;
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-    pointer-events: auto;
+    /* backdrop-filter removed — on mobile WebKit/Chromium it creates a stacking
+       context that intercepts touches above the overlay's z-index, making all
+       sidebar buttons untappable even though sidebar is z-index 70.          */
+    pointer-events: none; /* visual dimming only; JS handles tap-outside-to-close */
 }
 
 /* ============================================
