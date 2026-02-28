@@ -176,7 +176,7 @@
             <header class="border-b theme-border px-3 md:px-6 py-3 md:py-4 flex items-center justify-between theme-bg-panel sticky top-0 z-40 gap-2">
                 <div class="flex items-center space-x-2 md:space-x-6 min-w-0">
                     <!-- Hamburger (mobile only) -->
-                    <button id="hamburgerBtn" onclick="toggleMobileSidebar()" class="md:hidden p-2 hover:theme-bg-tertiary rounded-lg transition-colors flex-shrink-0" aria-label="Open menu">
+                    <button id="hamburgerBtn" onclick="toggleMobileSidebar(event)" class="md:hidden p-2 hover:theme-bg-tertiary rounded-lg transition-colors flex-shrink-0" aria-label="Open menu">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
@@ -548,7 +548,7 @@
 
     <!-- Mobile Bottom Navigation (hidden on desktop) -->
     <nav id="mobileBottomNav" class="mobile-bottom-nav md:hidden">
-        <button id="mobileNavMenuBtn" onclick="toggleMobileSidebar()" class="mobile-nav-btn" aria-label="Menu">
+        <button id="mobileNavMenuBtn" onclick="toggleMobileSidebar(event)" class="mobile-nav-btn" aria-label="Menu">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
             </svg>
@@ -635,7 +635,9 @@
         };
 
         // ── Mobile Sidebar Toggle ─────────────────────────────────────────────
-        window.toggleMobileSidebar = function() {
+        window.toggleMobileSidebar = function(e) {
+            // Stop the tap from bubbling to document and triggering closeMobileSidebar
+            if (e && e.stopPropagation) e.stopPropagation();
             const sidebar  = document.getElementById('mainSidebar');
             const overlay  = document.getElementById('sidebarOverlay');
             if (!sidebar || !overlay) return;
