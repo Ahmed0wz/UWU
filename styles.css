@@ -883,8 +883,14 @@ button:focus-visible {
     }
 
     /* Views need bottom padding so content isn't hidden behind bottom nav */
+    /* Extra space so bottom nav + browser chrome don't obscure content     */
     #weekView, #monthView, #yearView, #dayView {
-        padding-bottom: 70px;
+        padding-bottom: 140px;
+    }
+
+    /* Hide mini calendar in sidebar on mobile to free up space */
+    aside .px-4.pb-4 {
+        display: none !important;
     }
 
     /* Week grid - 3 day view on mobile, set by JS */
