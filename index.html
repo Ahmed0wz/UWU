@@ -548,7 +548,7 @@
 
     <!-- Mobile Bottom Navigation (hidden on desktop) -->
     <nav id="mobileBottomNav" class="mobile-bottom-nav md:hidden">
-        <button onclick="toggleMobileSidebar()" class="mobile-nav-btn" aria-label="Menu">
+        <button id="mobileNavMenuBtn" onclick="toggleMobileSidebar()" class="mobile-nav-btn" aria-label="Menu">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
             </svg>
@@ -660,10 +660,13 @@
         document.addEventListener('click', function(e) {
             const sidebar = document.getElementById('mainSidebar');
             const hamburger = document.getElementById('hamburgerBtn');
+            const mobileMenuBtn = document.getElementById('mobileNavMenuBtn');
             if (!sidebar || !sidebar.classList.contains('mobile-open')) return;
             if (window.innerWidth >= 768) return;
-            // If click is inside sidebar or on hamburger, do nothing
-            if (sidebar.contains(e.target) || (hamburger && hamburger.contains(e.target))) return;
+            // If click is inside sidebar, on the hamburger, or on the mobile nav menu btn, do nothing
+            if (sidebar.contains(e.target)) return;
+            if (hamburger && hamburger.contains(e.target)) return;
+            if (mobileMenuBtn && mobileMenuBtn.contains(e.target)) return;
             closeMobileSidebar();
         });
 
