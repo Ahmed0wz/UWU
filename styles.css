@@ -854,7 +854,7 @@ button:focus-visible {
         position: fixed;
         left: -300px;
         top: 0;
-        bottom: 0;
+        bottom: 64px; /* stop above the bottom nav so settings are visible */
         width: 300px !important;
         z-index: 70 !important;
         transition: left 0.3s ease;
@@ -1019,12 +1019,9 @@ button:focus-visible {
 .sidebar-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.45);
+    background: transparent; /* no dim — tap-outside-to-close handled by JS */
     z-index: 65;
-    /* backdrop-filter removed — on mobile WebKit/Chromium it creates a stacking
-       context that intercepts touches above the overlay's z-index, making all
-       sidebar buttons untappable even though sidebar is z-index 70.          */
-    pointer-events: none; /* visual dimming only; JS handles tap-outside-to-close */
+    pointer-events: none;
 }
 
 /* ============================================
