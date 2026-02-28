@@ -176,7 +176,7 @@
             <header class="border-b theme-border px-3 md:px-6 py-3 md:py-4 flex items-center justify-between theme-bg-panel sticky top-0 z-40 gap-2">
                 <div class="flex items-center space-x-2 md:space-x-6 min-w-0">
                     <!-- Hamburger (mobile only) -->
-                    <button id="hamburgerBtn" onclick="toggleMobileSidebar(event)" class="md:hidden p-2 hover:theme-bg-tertiary rounded-lg transition-colors flex-shrink-0" aria-label="Open menu">
+                    <button id="hamburgerBtn" onclick="toggleMobileSidebar(event)" class="hidden p-2 hover:theme-bg-tertiary rounded-lg transition-colors flex-shrink-0" aria-label="Open menu">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
@@ -188,7 +188,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
-                    <div class="flex items-center space-x-1 theme-bg-tertiary rounded-lg p-1 flex-shrink-0">
+                    <div class="hidden md:flex items-center space-x-1 theme-bg-tertiary rounded-lg p-1 flex-shrink-0">
                         <button onclick="navigatePrev()" class="p-1.5 hover:theme-bg rounded-md shadow-sm transition-all theme-bg">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -210,9 +210,9 @@
                 <div class="flex items-center space-x-1.5 md:space-x-3 flex-shrink-0">
                     <div class="flex theme-bg-tertiary rounded-lg p-1" id="viewSwitcher">
                         <button onclick="switchView('day')"   id="view-day"   class="px-2 md:px-3 py-1.5 text-xs md:text-sm font-medium theme-text-secondary hover:theme-text transition-all">Day</button>
-                        <button onclick="switchView('week')"  id="view-week"  class="px-2 md:px-3 py-1.5 text-xs md:text-sm font-medium theme-bg rounded-md shadow-sm transition-all">Week</button>
+                        <button onclick="switchView('week')"  id="view-week"  class="px-2 md:px-3 py-1.5 text-xs md:text-sm font-medium theme-bg rounded-md shadow-sm transition-all"><span class="md:hidden">3 Days</span><span class="hidden md:inline">Week</span></button>
                         <button onclick="switchView('month')" id="view-month" class="px-2 md:px-3 py-1.5 text-xs md:text-sm font-medium theme-text-secondary hover:theme-text transition-all">Month</button>
-                        <button onclick="switchView('year')"  id="view-year"  class="hidden sm:block px-2 md:px-3 py-1.5 text-xs md:text-sm font-medium theme-text-secondary hover:theme-text transition-all">Year</button>
+                        <button onclick="switchView('year')"  id="view-year"  class="hidden md:block px-2 md:px-3 py-1.5 text-xs md:text-sm font-medium theme-text-secondary hover:theme-text transition-all">Year</button>
                     </div>
                     <!-- Prayer times toggle — icon only on medium, label on large -->
                     <button id="prayerViewToggleBtn" onclick="toggleShowPrayerTimesInView()"
