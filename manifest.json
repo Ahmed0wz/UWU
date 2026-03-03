@@ -1,0 +1,26 @@
+{
+  "name": "Calendar",
+  "short_name": "Calendar",
+  "description": "Personal calendar with journal, scores, and prayer times",
+  "start_url": "https://ahmed0wz.github.io/UWU/index.html",
+  "scope": "https://ahmed0wz.github.io/UWU/",
+  "display": "standalone",
+  "background_color": "#d4c9be",
+  "theme_color": "#111111",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "https://ahmed0wz.github.io/UWU/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://ahmed0wz.github.io/UWU/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"]
+}
