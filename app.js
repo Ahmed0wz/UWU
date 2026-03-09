@@ -4113,7 +4113,7 @@ function renderSidebarContent() {
         <div class="flex-1 overflow-y-auto min-h-0">
 
             <!-- Journal tab -->
-            <div class="${state.sidebarView === 'journal' ? '' : 'hidden'} p-4 space-y-3 animate-fade-in">
+            <div class="p-4 space-y-3 animate-fade-in" style="${state.sidebarView === 'journal' ? '' : 'display:none'}">
                 <input type="text" id="journalTitle" placeholder="${t('titlePlaceholder')}" value="${journal?.title || ''}" class="w-full theme-bg-tertiary border theme-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 theme-text">
                 <textarea id="journalContent" placeholder="${t('writePlaceholder')}" rows="6"
                     class="w-full theme-bg-tertiary border theme-border rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 theme-text resize-none">${journal?.content || ''}</textarea>
@@ -4121,7 +4121,7 @@ function renderSidebarContent() {
             </div>
 
             <!-- Score tab -->
-            <div class="${state.sidebarView === 'score' ? '' : 'hidden'} p-4 space-y-3 animate-fade-in">
+            <div class="p-4 space-y-3 animate-fade-in" style="${state.sidebarView === 'score' ? '' : 'display:none'}">
                 <div class="theme-bg-tertiary rounded-xl p-4">
                     <label class="block text-xs font-medium theme-text-secondary mb-2">${t('expression')}</label>
                     <input type="text" id="scoreExpression" placeholder="${state.language==='ar' ? 'عمل*2 + رياضة + 5' : 'work*2 + gym + 5'}"
@@ -4143,7 +4143,7 @@ function renderSidebarContent() {
             </div>
 
             <!-- Tasks tab -->
-            <div class="${state.sidebarView === 'tasks' || state.sidebarView === null ? '' : 'hidden'} task-tab-body animate-fade-in">
+            <div class="task-tab-body animate-fade-in" style="${state.sidebarView === 'tasks' || state.sidebarView === null ? '' : 'display:none'}">
                 <!-- Period pills -->
                 <div class="flex gap-1.5 p-3 shrink-0">
                     ${['day','week','month','year'].map(p => {
@@ -4177,7 +4177,7 @@ function renderSidebarContent() {
         </div>
 
         <!-- Footer -->
-        <div class="${state.sidebarView === 'journal' || state.sidebarView === 'score' ? 'hidden' : ''} shrink-0 px-4 py-3 border-t theme-border theme-bg-panel grid grid-cols-3 gap-2 text-center">
+        <div class="shrink-0 px-4 py-3 border-t theme-border theme-bg-panel grid grid-cols-3 gap-2 text-center" style="${state.sidebarView === 'journal' || state.sidebarView === 'score' ? 'display:none' : ''}">
             <div>
                 <div class="text-xs theme-text-secondary">${t('today')}</div>
                 <div class="font-bold text-blue-600 dark:text-blue-400">${calcDayTotal(dateStr)}</div>

@@ -425,8 +425,8 @@
     </div>
 
     <!-- Background Settings Modal -->
-    <div id="backgroundModal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50">
-        <div class="theme-bg rounded-2xl shadow-2xl w-full max-w-md modal-animate overflow-hidden border theme-border">
+    <div id="backgroundModal" class="fixed inset-0 modal-backdrop hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+        <div class="theme-bg rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md modal-animate border theme-border flex flex-col max-h-[90vh]">
             <div class="px-6 py-4 border-b theme-border flex items-center justify-between">
                 <h3 class="text-lg font-semibold" id="bgSettingsTitle">Background Settings</h3>
                 <button onclick="closeBackgroundSettings()" class="theme-text-secondary hover:theme-text transition-colors">
@@ -435,7 +435,7 @@
                     </svg>
                 </button>
             </div>
-            <div class="p-6 space-y-6">
+            <div class="p-6 space-y-6 overflow-y-auto flex-1">
                 <div>
                     <label class="block text-sm font-medium mb-2" id="bgUploadLabel">Upload Background Image</label>
                     <div class="border-2 border-dashed theme-border rounded-lg p-6 text-center hover:theme-bg-tertiary transition-colors cursor-pointer" onclick="document.getElementById('bgImageInput').click()">
