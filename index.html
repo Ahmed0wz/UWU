@@ -427,7 +427,8 @@
     <!-- Background Settings Modal -->
     <div id="backgroundModal" class="fixed inset-0 modal-backdrop hidden items-end sm:items-center justify-center z-50 p-0 sm:p-4">
         <div class="theme-bg rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md modal-animate border theme-border flex flex-col max-h-[90vh]">
-            <div class="px-6 py-4 border-b theme-border flex items-center justify-between">
+            <!-- Header -->
+            <div class="px-6 py-4 border-b theme-border flex items-center justify-between shrink-0">
                 <h3 class="text-lg font-semibold" id="bgSettingsTitle">Background Settings</h3>
                 <button onclick="closeBackgroundSettings()" class="theme-text-secondary hover:theme-text transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -435,7 +436,9 @@
                     </svg>
                 </button>
             </div>
+            <!-- Scrollable body -->
             <div class="p-6 space-y-6 overflow-y-auto flex-1">
+                <!-- Upload zone -->
                 <div>
                     <label class="block text-sm font-medium mb-2" id="bgUploadLabel">Upload Background Image</label>
                     <div class="border-2 border-dashed theme-border rounded-lg p-6 text-center hover:theme-bg-tertiary transition-colors cursor-pointer" onclick="document.getElementById('bgImageInput').click()">
@@ -448,7 +451,12 @@
                     <input type="file" id="bgImageInput" class="hidden" accept="image/*" onchange="handleBackgroundUpload(event)">
                 </div>
 
+                <!-- Controls (shown only when a background is active) -->
                 <div id="bgControls" class="hidden space-y-4">
+                    <!-- Preview -->
+                    <div id="bgPreview" class="hidden rounded-lg overflow-hidden border theme-border h-32 bg-cover bg-center"></div>
+
+                    <!-- Opacity -->
                     <div>
                         <div class="flex justify-between mb-2">
                             <label class="text-sm font-medium" id="bgOpacityLabel">Opacity</label>
@@ -456,6 +464,8 @@
                         </div>
                         <input type="range" min="0" max="100" value="50" class="opacity-slider" oninput="updateBackgroundOpacity(this.value)">
                     </div>
+
+                    <!-- Apply to -->
                     <div>
                         <label class="block text-sm font-medium mb-2" id="bgApplyToLabel">Apply to</label>
                         <div class="flex space-x-2">
@@ -464,7 +474,8 @@
                             <button onclick="setBackgroundScope('all')"   id="scope-all"   class="flex-1 py-2 px-4 rounded-lg border theme-border hover:theme-bg-tertiary transition-colors text-sm" data-scope-label="all">All Time</button>
                         </div>
                     </div>
-                    <!-- Monthly background override -->
+
+                    <!-- Monthly override -->
                     <div class="border-t theme-border pt-4">
                         <div class="flex items-center justify-between mb-2">
                             <label class="text-sm font-medium" id="bgMonthlyOverrideLabel">Monthly Override</label>
@@ -481,14 +492,13 @@
                         </div>
                     </div>
 
-                        </div>
+                    <!-- Remove background -->
+                    <div class="border-t theme-border pt-4">
+                        <button onclick="removeBackground()" class="w-full py-2 text-red-600 border border-red-200 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-sm font-medium">
+                            <span id="bgRemoveBtnLabel">Remove Background</span>
+                        </button>
                     </div>
-                    <button onclick="removeBackground()" class="w-full py-2 text-red-600 border border-red-200 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-sm font-medium">
-                        <span id="bgRemoveBtnLabel">Remove Background</span>
-                    </button>
                 </div>
-
-                <div id="bgPreview" class="hidden rounded-lg overflow-hidden border theme-border h-32 bg-cover bg-center"></div>
             </div>
         </div>
     </div>
