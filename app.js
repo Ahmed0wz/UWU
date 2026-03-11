@@ -6366,28 +6366,33 @@ async function _postToSW(msg) {
 
 // ─── Page-side tick — runs every 30s while app is open ───────────────
 
-function _notifTick() {
+async function _notifTick() {
     if (Notification.permission !== 'granted') return;
     const now = Date.now();
     const scheduled = _getScheduled();
     let changed = false;
 
-    scheduled.forEach(entry => {
-        // Fire if within 30s window and not already fired this session
+    for (const entry of scheduled) {
         if (entry.timestamp <= now + 500 && !_firedNotifs.has(entry.id)) {
             _firedNotifs.add(entry.id);
-            new Notification(entry.title, {
-                body:  entry.body,
-                icon:  '/UWU/icon.png',
-                tag:   String(entry.id),
-                renotify: false,
-            });
             changed = true;
+            // Use SW showNotification — works on all browsers including Chrome/Windows
+            try {
+                const reg = await navigator.serviceWorker.ready;
+                await reg.showNotification(entry.title, {
+                    body:     entry.body,
+                    icon:     '/UWU/icon.png',
+                    tag:      String(entry.id),
+                    renotify: false,
+                });
+            } catch(e) {
+                // Fallback to Notification API if SW unavailable
+                try { new Notification(entry.title, { body: entry.body, icon: '/UWU/icon.png' }); } catch(_) {}
+            }
         }
-    });
+    }
 
     if (changed) {
-        // Remove fired ones and prune past entries
         const remaining = scheduled.filter(e => e.timestamp > now - 60000 && !_firedNotifs.has(e.id));
         _saveScheduled(remaining);
     }
@@ -6473,15 +6478,20 @@ async function scheduleEventNotification(ev) {
     // Layer 1: page-side precise timer (most reliable)
     const delay = fireAt - Date.now();
     if (delay > 0) {
-        setTimeout(() => {
+        setTimeout(async () => {
             if (_firedNotifs.has(ev.id)) return;
             _firedNotifs.add(ev.id);
-            new Notification(ev.title, {
-                body:  entry.body,
-                icon:  '/UWU/icon.png',
-                tag:   String(ev.id),
-                renotify: false,
-            });
+            try {
+                const reg = await navigator.serviceWorker.ready;
+                await reg.showNotification(ev.title, {
+                    body:     entry.body,
+                    icon:     '/UWU/icon.png',
+                    tag:      String(ev.id),
+                    renotify: false,
+                });
+            } catch(e) {
+                try { new Notification(ev.title, { body: entry.body, icon: '/UWU/icon.png' }); } catch(_) {}
+            }
             const remaining = _getScheduled().filter(e => e.id !== ev.id);
             _saveScheduled(remaining);
         }, delay);
@@ -6568,9 +6578,14 @@ async function notifDebug() {
     if (Notification.permission === 'granted') {
         lines.push('--- Firing a TEST notification now ---');
         try {
-            new Notification('Test ✓', { body: 'Notifications are working!', icon: '/UWU/icon.png' });
-            lines.push('Test notification fired OK');
-        } catch(e) { lines.push('Test notification FAILED: ' + e.message); }
+            const reg = await navigator.serviceWorker.ready;
+            await reg.showNotification('Test ✓', { body: 'Notifications are working!', icon: '/UWU/icon.png' });
+            lines.push('Test notification fired OK (via SW)');
+        } catch(e) {
+            lines.push('SW showNotification failed: ' + e.message);
+            try { new Notification('Test ✓', { body: 'Fallback test', icon: '/UWU/icon.png' }); lines.push('Fallback Notification() OK'); }
+            catch(e2) { lines.push('Both methods FAILED: ' + e2.message); }
+        }
     }
 
     const out = lines.join('\n');
