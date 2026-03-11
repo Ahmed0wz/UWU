@@ -6333,13 +6333,17 @@ function setupEventListeners() {
 
 // ══════════════════════════════════════════════════════════════════════════
 // NOTIFICATIONS MODULE
-// Uses a Service Worker to fire local notifications at the right time.
-// localStorage key: 'uwu_scheduled_notifs' — array of pending items.
-// On every page load, pending notifications are re-sent to the SW
-// so timers survive app restarts (as long as SW is still alive).
+// Two-layer approach:
+//   Layer 1 (page-side): setInterval checks every 30s while app is open.
+//                        Most reliable — fires even if SW is killed.
+//   Layer 2 (SW-side):   On page load, SW is sent all upcoming timers
+//                        as a safety net for when app is closed.
+// localStorage key: 'uwu_scheduled_notifs' — persists scheduled items.
 // ══════════════════════════════════════════════════════════════════════════
 
 const NOTIF_STORAGE_KEY = 'uwu_scheduled_notifs';
+let _notifCheckInterval = null;
+const _firedNotifs = new Set(); // prevent double-firing in same session
 
 function _getScheduled() {
     try { return JSON.parse(localStorage.getItem(NOTIF_STORAGE_KEY) || '[]'); } catch { return []; }
@@ -6348,17 +6352,45 @@ function _saveScheduled(arr) {
     localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(arr));
 }
 
-async function _swReady() {
-    if (!('serviceWorker' in navigator)) return null;
+async function _postToSW(msg) {
+    if (!('serviceWorker' in navigator)) return;
     try {
         const reg = await navigator.serviceWorker.ready;
-        return reg.active || null;
-    } catch { return null; }
+        let attempts = 0;
+        while (!reg.active && attempts++ < 15) {
+            await new Promise(r => setTimeout(r, 200));
+        }
+        if (reg.active) reg.active.postMessage(msg);
+    } catch(e) { console.warn('[Notif] SW post failed:', e); }
 }
 
-async function _postToSW(msg) {
-    const sw = await _swReady();
-    if (sw) sw.postMessage(msg);
+// ─── Page-side tick — runs every 30s while app is open ───────────────
+
+function _notifTick() {
+    if (Notification.permission !== 'granted') return;
+    const now = Date.now();
+    const scheduled = _getScheduled();
+    let changed = false;
+
+    scheduled.forEach(entry => {
+        // Fire if within 30s window and not already fired this session
+        if (entry.timestamp <= now + 500 && !_firedNotifs.has(entry.id)) {
+            _firedNotifs.add(entry.id);
+            new Notification(entry.title, {
+                body:  entry.body,
+                icon:  '/UWU/icon.png',
+                tag:   String(entry.id),
+                renotify: false,
+            });
+            changed = true;
+        }
+    });
+
+    if (changed) {
+        // Remove fired ones and prune past entries
+        const remaining = scheduled.filter(e => e.timestamp > now - 60000 && !_firedNotifs.has(e.id));
+        _saveScheduled(remaining);
+    }
 }
 
 // ─── Permission prompt ────────────────────────────────────────────────
@@ -6431,10 +6463,32 @@ async function scheduleEventNotification(ev) {
     scheduled.push(entry);
     _saveScheduled(scheduled);
 
-    // Send to SW if permission granted
-    if (Notification.permission === 'granted') {
-        await _postToSW({ type: 'SCHEDULE', ...entry });
+    // Request permission if not yet decided
+    if (Notification.permission === 'default') {
+        const result = await Notification.requestPermission();
+        if (result !== 'granted') return;
     }
+    if (Notification.permission !== 'granted') return;
+
+    // Layer 1: page-side precise timer (most reliable)
+    const delay = fireAt - Date.now();
+    if (delay > 0) {
+        setTimeout(() => {
+            if (_firedNotifs.has(ev.id)) return;
+            _firedNotifs.add(ev.id);
+            new Notification(ev.title, {
+                body:  entry.body,
+                icon:  '/UWU/icon.png',
+                tag:   String(ev.id),
+                renotify: false,
+            });
+            const remaining = _getScheduled().filter(e => e.id !== ev.id);
+            _saveScheduled(remaining);
+        }, delay);
+    }
+
+    // Layer 2: SW backup (fires if app is closed before timer runs)
+    await _postToSW({ type: 'SCHEDULE', ...entry });
 }
 
 async function cancelEventNotification(eventId) {
@@ -6443,13 +6497,14 @@ async function cancelEventNotification(eventId) {
     await _postToSW({ type: 'CANCEL', id: eventId });
 }
 
-// ─── Re-send all pending notifications to SW (called on page load) ───
+// ─── Re-send all pending notifications to SW (backup layer) ──────────
 
 async function _rescheduleAll() {
     const now = Date.now();
     const scheduled = _getScheduled().filter(n => n.timestamp > now);
-    _saveScheduled(scheduled);   // prune expired ones
+    _saveScheduled(scheduled);
     if (Notification.permission !== 'granted') return;
+    // Post to SW as backup (for when app is closed)
     for (const entry of scheduled) {
         await _postToSW({ type: 'SCHEDULE', ...entry });
     }
@@ -6458,17 +6513,22 @@ async function _rescheduleAll() {
 // ─── Init (called on DOMContentLoaded) ───────────────────────────────
 
 function initNotifications() {
-    if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
+    if (!('Notification' in window)) return;
 
-    // Re-schedule surviving notifications
+    // Start page-side tick (every 30s) — primary notification layer
+    if (_notifCheckInterval) clearInterval(_notifCheckInterval);
+    _notifCheckInterval = setInterval(_notifTick, 30_000);
+    // Also run once immediately in case something is due now
+    setTimeout(_notifTick, 1000);
+
+    // Re-send to SW as backup layer
     if (Notification.permission === 'granted') {
         _rescheduleAll();
     }
 
-    // Show permission prompt once (skip if already decided or skipped)
+    // Show permission prompt once
     const skipped = localStorage.getItem('uwu_notif_skipped');
     if (Notification.permission === 'default' && !skipped) {
-        // Delay prompt so it doesn't appear right on load
         setTimeout(requestNotificationPermission, 4000);
     }
 }

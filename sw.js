@@ -2,7 +2,7 @@
 // SERVICE WORKER — Calendar PWA
 // ============================================
 
-const CACHE_NAME = 'calendar-v10';
+const CACHE_NAME = 'calendar-v11';
 const BASE = 'https://ahmed0wz.github.io/UWU/';
 
 const APP_SHELL = [
@@ -36,8 +36,8 @@ self.addEventListener('message', e => {
             delete _timers[id];
             self.registration.showNotification(title, {
                 body,
-                icon:  '/UWU/icons/icon-192.png',
-                badge: '/UWU/icons/icon-192.png',
+                icon:  '/UWU/icon.png',
+                badge: '/UWU/icon.png',
                 tag:   String(id),
                 renotify: false,
                 data: { eventId: id },
