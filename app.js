@@ -6603,6 +6603,7 @@ async function initSync() {
         _syncInitialized = true;
         _setSyncStatus('connected');
         await pullAndMerge(state.currentUser);
+        await pushUserData(state.currentUser);   // upload local data so other devices get it
         startRealtimeListeners(state.currentUser);
     } catch (e) {
         console.error('[Sync] Init error:', e);
