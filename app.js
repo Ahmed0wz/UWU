@@ -19,7 +19,10 @@ const STORAGE_KEYS = {
     MONTHLY_BG: (user) => `calendar_monthly_bg_${user}`,
     CALENDAR_MODE: (user) => `calendar_mode_${user}`,
     HIJRI_OFFSETS: (user) => `calendar_hijri_offsets_${user}`,
-    LANGUAGE: 'calendar_language'
+    LANGUAGE:        'calendar_language',
+    SYNC_CONFIG:     'calendar_sync_config',
+    SYNC_META:       'calendar_sync_meta',
+    SYNC_STATUS:     'calendar_sync_status',
 };
 
 // ═══════════════════════════════════════════
@@ -127,6 +130,7 @@ const TRANSLATIONS = {
     whenShort:       'When month is too short:',
     lastDay:         'Use last day of month',
     skipMonth:       'Skip that month',
+    syncData:        'Sync',
     currentAccount:  'current',
     onlyAccount:     'only account',
     errEmptyName:    'Please enter an account name.',
@@ -239,6 +243,7 @@ const TRANSLATIONS = {
     whenShort:       'عند قِصَر الشهر:',
     lastDay:         'استخدم آخر يوم',
     skipMonth:       'تخطَّ الشهر',
+    syncData:        'مزامنة',
     currentAccount:  'الحالي',
     onlyAccount:     'حساب وحيد',
     errEmptyName:    'يرجى إدخال اسم الحساب.',
@@ -1454,14 +1459,14 @@ function removeFromStorage(key) {
     }
 }
 
-function saveJournal() { saveToStorage(STORAGE_KEYS.JOURNAL(state.currentUser), state.journalEntries); }
+function saveJournal() { saveToStorage(STORAGE_KEYS.JOURNAL(state.currentUser), state.journalEntries); syncDebounce(); }
 function loadJournal() { state.journalEntries = loadFromStorage(STORAGE_KEYS.JOURNAL(state.currentUser)) || {}; }
 function saveVariables() { saveToStorage(STORAGE_KEYS.VARIABLES(state.currentUser), state.variables); }
 function loadVariables() { state.variables = loadFromStorage(STORAGE_KEYS.VARIABLES(state.currentUser)) || {}; }
 
 // TASKS — storage, keys, point calculators
 
-function saveTasks() { saveToStorage(STORAGE_KEYS.TASKS(state.currentUser), state.tasks); }
+function saveTasks() { saveToStorage(STORAGE_KEYS.TASKS(state.currentUser), state.tasks); syncDebounce(); }
 function loadTasks() { state.tasks = loadFromStorage(STORAGE_KEYS.TASKS(state.currentUser)) || { day: {}, week: {}, month: {}, year: {} }; }
 function saveRenderWindow() { saveToStorage(STORAGE_KEYS.RENDER_WINDOW(state.currentUser), state.renderWindowDays); }
 function loadRenderWindow() { state.renderWindowDays = loadFromStorage(STORAGE_KEYS.RENDER_WINDOW(state.currentUser)) || 31; }
@@ -1864,7 +1869,7 @@ function saveLocationSettings() {
 
 // DATA PERSISTENCE
 
-function saveEvents() { saveToStorage(STORAGE_KEYS.EVENTS(state.currentUser), events); }
+function saveEvents() { saveToStorage(STORAGE_KEYS.EVENTS(state.currentUser), events); syncDebounce(); }
 function loadEvents() {
     const saved = loadFromStorage(STORAGE_KEYS.EVENTS(state.currentUser)) || [];
     const hadInstances = saved.some(e => e.parentId);
@@ -5465,6 +5470,11 @@ function openAccountSettings(e) {
                 <span>${t('forgottenTasks')}</span>
                 <span id="forgottenBadge" class="ml-auto text-xs bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 rounded-full px-2 py-0.5 font-semibold hidden">0</span>
             </button>
+            <button onclick="openSyncModal(); closeAccountSettings();" class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg hover:theme-bg-tertiary transition-colors text-left text-sm">
+                <svg class="w-4 h-4 flex-shrink-0 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
+                <span>${t('syncData')}</span>
+                <span class="ml-auto flex items-center gap-1.5"><span id="syncStatusDot" class="w-2 h-2 rounded-full ${getSyncStatus()==='connected'?'bg-green-500':'bg-gray-400'}"></span><span id="syncStatusLabel" class="text-xs theme-text-secondary">${getSyncStatus()==='connected'?(state.language==='ar'?'متصل':'Connected'):(state.language==='ar'?'غير متصل':'Not connected')}</span></span>
+            </button>
             <button onclick="toggleLanguage()" class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg hover:theme-bg-tertiary transition-colors text-left text-sm">
                 <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>
                 <span class="font-medium">${state.language === 'ar' ? t('switchToEnglish') : t('switchToArabic')}</span>
@@ -6280,6 +6290,557 @@ function setupEventListeners() {
     });
 }
 
+
+// ══════════════════════════════════════════════════════════════════════════
+// FIREBASE SYNC MODULE
+// localStorage is always primary — the app works 100% offline.
+// Firebase is a background sync layer. All reads still come from
+// localStorage; writes go to localStorage first, then Firebase.
+// Conflict resolution: last-write-wins per document.
+// ══════════════════════════════════════════════════════════════════════════
+
+let _db              = null;
+let _syncListeners   = {};   // { userName: { events: unsub, journal: unsub, ... } }
+let _syncDebounceTimer = null;
+let _syncInitialized = false;
+
+// The four Firestore documents per user account
+const _SYNC_DOCS = ['events', 'journal', 'tasks', 'meta'];
+
+// ─── AES-GCM Encryption (Level-2 privacy) ─────────────────────────────────
+// Key is derived from the user's sync code via PBKDF2.
+// Google (and anyone reading Firestore) sees only ciphertext.
+// Fixed salt is public knowledge — security comes entirely from
+// the sync code being secret, not from the salt.
+
+const _CRYPTO_SALT = new TextEncoder().encode('uwu-calendar-v1-salt');
+let   _cryptoKey   = null;   // cached CryptoKey; re-derived on connect
+
+async function _deriveCryptoKey(syncCode) {
+    const rawKey = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode(syncCode),
+        { name: 'PBKDF2' },
+        false,
+        ['deriveKey']
+    );
+    _cryptoKey = await crypto.subtle.deriveKey(
+        { name: 'PBKDF2', salt: _CRYPTO_SALT, iterations: 200_000, hash: 'SHA-256' },
+        rawKey,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+    );
+}
+
+async function _encrypt(obj) {
+    const iv         = crypto.getRandomValues(new Uint8Array(12));
+    const plaintext  = new TextEncoder().encode(JSON.stringify(obj));
+    const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, _cryptoKey, plaintext);
+    // Store as base64 strings so Firestore can hold them
+    const toB64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+    return { _enc: 1, iv: toB64(iv), ct: toB64(ciphertext) };
+}
+
+async function _decrypt(doc) {
+    if (!doc._enc) return doc;           // legacy unencrypted doc — pass through
+    const fromB64 = b64 => Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    const plain = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: fromB64(doc.iv) },
+        _cryptoKey,
+        fromB64(doc.ct)
+    );
+    return JSON.parse(new TextDecoder().decode(plain));
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────
+
+function _getSyncConfig()       { return loadFromStorage(STORAGE_KEYS.SYNC_CONFIG); }
+function _saveSyncConfig(cfg)   { saveToStorage(STORAGE_KEYS.SYNC_CONFIG, cfg); }
+function _getSyncMeta()         { return loadFromStorage(STORAGE_KEYS.SYNC_META) || {}; }
+function _saveSyncMeta(m)       { saveToStorage(STORAGE_KEYS.SYNC_META, m); }
+
+function getSyncStatus()        { return loadFromStorage(STORAGE_KEYS.SYNC_STATUS) || 'disconnected'; }
+function _setSyncStatus(s) {
+    saveToStorage(STORAGE_KEYS.SYNC_STATUS, s);
+    const dot = document.getElementById('syncStatusDot');
+    if (dot) dot.className = 'w-2 h-2 rounded-full ' + (
+        s === 'connected' ? 'bg-green-500' :
+        s === 'syncing'   ? 'bg-yellow-500 animate-pulse' :
+        s === 'error'     ? 'bg-red-500' : 'bg-gray-400'
+    );
+    const lbl = document.getElementById('syncStatusLabel');
+    if (lbl) {
+        const AR = state.language === 'ar';
+        lbl.textContent = s === 'connected' ? (AR ? 'متصل'          : 'Connected')     :
+                          s === 'syncing'   ? (AR ? 'يتزامن…'        : 'Syncing…')      :
+                          s === 'error'     ? (AR ? 'خطأ في الاتصال' : 'Sync error')    :
+                                              (AR ? 'غير متصل'       : 'Not connected');
+    }
+}
+
+function isSyncEnabled() {
+    const cfg = _getSyncConfig();
+    return !!(cfg?.apiKey && cfg?.projectId && cfg?.syncCode && cfg?.gateCode && _syncInitialized && _db);
+}
+
+// Firestore path: /sync/{gateCode}/users/{userName}/data/{docName}
+function _docRef(gateCode, userName, docName) {
+    return _db
+        .collection('sync').doc(gateCode)
+        .collection('users').doc(userName)
+        .collection('data').doc(docName);
+}
+
+// ─── Build payloads from localStorage ─────────────────────────────────────
+
+function _buildPayload(user, docName) {
+    if (docName === 'events') {
+        return { data: loadFromStorage(STORAGE_KEYS.EVENTS(user)) || [] };
+    }
+    if (docName === 'journal') {
+        return { data: loadFromStorage(STORAGE_KEYS.JOURNAL(user)) || {} };
+    }
+    if (docName === 'tasks') {
+        return { data: loadFromStorage(STORAGE_KEYS.TASKS(user)) || { day:{}, week:{}, month:{}, year:{} } };
+    }
+    if (docName === 'meta') {
+        return {
+            calendars:        loadFromStorage(STORAGE_KEYS.CALENDARS(user)) || [],
+            activeCalendars:  loadFromStorage(STORAGE_KEYS.CALENDARS(user) + '_active') || [],
+            variables:        loadFromStorage(STORAGE_KEYS.VARIABLES(user)) || {},
+            forgottenTasks:   loadFromStorage(STORAGE_KEYS.FORGOTTEN(user)) || [],
+            hijriOffsets:     loadFromStorage(STORAGE_KEYS.HIJRI_OFFSETS(user)) || {},
+            location:         loadFromStorage(STORAGE_KEYS.LOCATION(user)) || null,
+            calendarMode:     loadFromStorage(STORAGE_KEYS.CALENDAR_MODE(user)) || 'gregorian',
+            renderWindow:     loadFromStorage(STORAGE_KEYS.RENDER_WINDOW(user)) || 31,
+            showPrayerTimes:  loadFromStorage(STORAGE_KEYS.SHOW_PRAYER_TIMES(user)) || false,
+        };
+    }
+    return {};
+}
+
+// ─── Apply remote data to localStorage ────────────────────────────────────
+
+function _applyRemote(user, docName, remote) {
+    if (docName === 'events') {
+        const local = loadFromStorage(STORAGE_KEYS.EVENTS(user)) || [];
+        saveToStorage(STORAGE_KEYS.EVENTS(user), _mergeEvents(local, remote.data || []));
+    } else if (docName === 'journal') {
+        const local = loadFromStorage(STORAGE_KEYS.JOURNAL(user)) || {};
+        saveToStorage(STORAGE_KEYS.JOURNAL(user), { ...local, ...(remote.data || {}) });
+    } else if (docName === 'tasks') {
+        const L = loadFromStorage(STORAGE_KEYS.TASKS(user)) || { day:{}, week:{}, month:{}, year:{} };
+        const R = remote.data || { day:{}, week:{}, month:{}, year:{} };
+        saveToStorage(STORAGE_KEYS.TASKS(user), {
+            day:   { ...L.day,   ...R.day },
+            week:  { ...L.week,  ...R.week },
+            month: { ...L.month, ...R.month },
+            year:  { ...L.year,  ...R.year },
+        });
+    } else if (docName === 'meta') {
+        // Only overwrite fields that are present in remote
+        const fields = [
+            ['calendars',       STORAGE_KEYS.CALENDARS(user)],
+            ['activeCalendars', STORAGE_KEYS.CALENDARS(user) + '_active'],
+            ['variables',       STORAGE_KEYS.VARIABLES(user)],
+            ['forgottenTasks',  STORAGE_KEYS.FORGOTTEN(user)],
+            ['hijriOffsets',    STORAGE_KEYS.HIJRI_OFFSETS(user)],
+            ['location',        STORAGE_KEYS.LOCATION(user)],
+            ['calendarMode',    STORAGE_KEYS.CALENDAR_MODE(user)],
+            ['renderWindow',    STORAGE_KEYS.RENDER_WINDOW(user)],
+            ['showPrayerTimes', STORAGE_KEYS.SHOW_PRAYER_TIMES(user)],
+        ];
+        fields.forEach(([key, storageKey]) => {
+            if (remote[key] !== undefined) saveToStorage(storageKey, remote[key]);
+        });
+    }
+}
+
+// Merge event arrays by ID (union; remote wins on conflict)
+function _mergeEvents(local, remote) {
+    const map = {};
+    local.forEach(ev  => { if (ev?.id) map[ev.id] = ev; });
+    remote.forEach(ev => { if (ev?.id) map[ev.id] = ev; }); // remote overwrites
+    return Object.values(map);
+}
+
+// ─── Push ─────────────────────────────────────────────────────────────────
+
+async function pushUserData(user) {
+    if (!isSyncEnabled()) return;
+    const cfg = _getSyncConfig();
+    _setSyncStatus('syncing');
+    try {
+        const now = Date.now();
+        const deviceTag = navigator.userAgent.slice(0, 80);
+        for (const docName of _SYNC_DOCS) {
+            const payload  = _buildPayload(user, docName);
+            const envelope = await _encrypt({ ...payload, _syncedAt: now, _device: deviceTag });
+            await _docRef(cfg.gateCode, user, docName).set(envelope);
+        }
+        const meta = _getSyncMeta();
+        if (!meta[user]) meta[user] = {};
+        meta[user]._lastPush = now;
+        _saveSyncMeta(meta);
+        _setSyncStatus('connected');
+    } catch (e) {
+        console.error('[Sync] Push error:', e);
+        _setSyncStatus('error');
+    }
+}
+
+// ─── Pull ─────────────────────────────────────────────────────────────────
+
+async function pullAndMerge(user) {
+    if (!isSyncEnabled()) return;
+    const cfg = _getSyncConfig();
+    _setSyncStatus('syncing');
+    let changed = false;
+    try {
+        for (const docName of _SYNC_DOCS) {
+            const snap = await _docRef(cfg.gateCode, user, docName).get();
+            if (!snap.exists) continue;
+            const raw    = snap.data();
+            const remote = await _decrypt(raw);
+            const remoteSyncedAt = remote._syncedAt || 0;
+            const localMeta = _getSyncMeta();
+            const lastPull  = localMeta[user]?.[docName + '_pull'] || 0;
+            if (remoteSyncedAt <= lastPull) continue; // already have this version
+            _applyRemote(user, docName, remote);
+            const m = _getSyncMeta();
+            if (!m[user]) m[user] = {};
+            m[user][docName + '_pull'] = Date.now();
+            _saveSyncMeta(m);
+            changed = true;
+        }
+        _setSyncStatus('connected');
+    } catch (e) {
+        console.error('[Sync] Pull error:', e);
+        _setSyncStatus('error');
+    }
+    if (changed && user === state.currentUser) {
+        loadAllData();
+        renderCurrentView();
+        renderMiniCalendar();
+    }
+}
+
+// ─── Real-time listeners ───────────────────────────────────────────────────
+
+function startRealtimeListeners(user) {
+    if (!isSyncEnabled()) return;
+    stopRealtimeListeners(user);
+    const cfg = _getSyncConfig();
+    const unsubs = {};
+    _SYNC_DOCS.forEach(docName => {
+        try {
+            unsubs[docName] = _docRef(cfg.gateCode, user, docName).onSnapshot(async snap => {
+                // hasPendingWrites = true means this is our own write echoing back — skip
+                if (!snap.exists || snap.metadata.hasPendingWrites) return;
+                const raw = snap.data();
+                if (!raw) return;
+                let remote;
+                try { remote = await _decrypt(raw); } catch(e) { console.warn('[Sync] Decrypt failed:', e); return; }
+                const remoteSyncedAt = remote._syncedAt || 0;
+                const meta      = _getSyncMeta();
+                const lastPull  = meta[user]?.[docName + '_pull'] || 0;
+                if (remoteSyncedAt <= lastPull) return;
+                _applyRemote(user, docName, remote);
+                const m = _getSyncMeta();
+                if (!m[user]) m[user] = {};
+                m[user][docName + '_pull'] = Date.now();
+                _saveSyncMeta(m);
+                if (user === state.currentUser) {
+                    loadAllData();
+                    renderCurrentView();
+                    renderMiniCalendar();
+                    _setSyncStatus('connected');
+                }
+            }, err => console.warn('[Sync] Listener error:', err));
+        } catch (e) {
+            console.warn('[Sync] Could not start listener for', docName, e);
+        }
+    });
+    _syncListeners[user] = unsubs;
+}
+
+function stopRealtimeListeners(user) {
+    if (_syncListeners[user]) {
+        Object.values(_syncListeners[user]).forEach(u => { try { u(); } catch(e) {} });
+        delete _syncListeners[user];
+    }
+}
+
+// ─── Debounce ─────────────────────────────────────────────────────────────
+
+function syncDebounce(user) {
+    if (!isSyncEnabled()) return;
+    if (_syncDebounceTimer) clearTimeout(_syncDebounceTimer);
+    _syncDebounceTimer = setTimeout(() => pushUserData(user || state.currentUser), 2500);
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────
+
+async function initSync() {
+    if (typeof firebase === 'undefined') return; // SDK not loaded — graceful no-op
+    const cfg = _getSyncConfig();
+    if (!cfg?.apiKey || !cfg?.projectId || !cfg?.syncCode || !cfg?.gateCode) return;
+    // Always re-derive key on page load
+    await _deriveCryptoKey(cfg.syncCode);
+    try {
+        if (!firebase.apps.length) {
+            firebase.initializeApp({
+                apiKey:            cfg.apiKey,
+                projectId:         cfg.projectId,
+                authDomain:        cfg.projectId + '.firebaseapp.com',
+                storageBucket:     cfg.projectId + '.appspot.com',
+                messagingSenderId: cfg.messagingSenderId || '',
+                appId:             cfg.appId || '',
+            });
+        }
+        _db = firebase.firestore();
+        _syncInitialized = true;
+        _setSyncStatus('connected');
+        await pullAndMerge(state.currentUser);
+        startRealtimeListeners(state.currentUser);
+    } catch (e) {
+        console.error('[Sync] Init error:', e);
+        _setSyncStatus('error');
+    }
+}
+
+async function connectSync(apiKey, projectId, syncCode, gateCode) {
+    _saveSyncConfig({ apiKey, projectId, syncCode, gateCode });
+    // Derive encryption key from sync code only
+    await _deriveCryptoKey(syncCode);
+    // Teardown any existing connection
+    _syncInitialized = false;
+    _db = null;
+    Object.keys(_syncListeners).forEach(u => stopRealtimeListeners(u));
+    if (firebase.apps.length) {
+        // Firebase doesn't let you re-init cleanly in compat mode,
+        // so reuse the existing app but swap the db reference
+        firebase.app().options.apiKey !== apiKey
+            ? console.warn('[Sync] API key changed — reload may be needed')
+            : null;
+    }
+    await initSync();
+    if (!isSyncEnabled()) throw new Error('Init failed after config save');
+}
+
+async function disconnectSync() {
+    Object.keys(_syncListeners).forEach(u => stopRealtimeListeners(u));
+    _syncInitialized = false;
+    _db = null;
+    _saveSyncConfig(null);
+    saveToStorage(STORAGE_KEYS.SYNC_META, null);
+    _setSyncStatus('disconnected');
+}
+
+// ─── Sync Modal UI ────────────────────────────────────────────────────────
+
+function openSyncModal() {
+    document.getElementById('syncModal')?.remove();
+    const cfg         = _getSyncConfig();
+    const connected   = isSyncEnabled();
+    const AR          = state.language === 'ar';
+
+    const modal = document.createElement('div');
+    modal.id = 'syncModal';
+    modal.className = 'fixed inset-0 modal-backdrop flex items-center justify-center z-[200] px-4';
+
+    modal.innerHTML = `
+    <div class="theme-bg rounded-2xl shadow-2xl w-full max-w-md modal-animate border theme-border flex flex-col max-h-[85vh]">
+        <div class="px-5 py-4 border-b theme-border flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
+                <h2 class="font-semibold">${AR ? 'مزامنة البيانات' : 'Data Sync'}</h2>
+            </div>
+            <button onclick="document.getElementById('syncModal').remove()" class="theme-text-secondary hover:theme-text p-1">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <div class="p-5 space-y-4 overflow-y-auto flex-1">
+        ${connected ? `
+            <!-- ── Connected state ── -->
+            <div class="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
+                <div class="w-2.5 h-2.5 rounded-full bg-green-500 shrink-0"></div>
+                <div class="flex-1 text-sm text-green-800 dark:text-green-300 font-medium">${AR ? 'المزامنة نشطة' : 'Sync is active'}</div>
+            </div>
+            <div class="theme-bg-tertiary rounded-xl p-4 space-y-1.5 text-sm">
+                <div class="flex justify-between">
+                    <span class="theme-text-secondary">${AR ? 'رمز البوابة' : 'Gate code'}</span>
+                    <span class="font-mono font-medium" dir="ltr">${cfg?.gateCode}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="theme-text-secondary">${AR ? 'رمز المزامنة' : 'Sync code'}</span>
+                    <span class="font-mono font-medium" dir="ltr">${cfg?.syncCode}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="theme-text-secondary">${AR ? 'المشروع' : 'Project'}</span>
+                    <span class="font-mono text-xs theme-text-secondary" dir="ltr">${cfg?.projectId}</span>
+                </div>
+                <div class="flex justify-between pt-1 border-t theme-border">
+                    <span class="theme-text-secondary">${AR ? 'التشفير' : 'Encryption'}</span>
+                    <span class="flex items-center gap-1.5 text-green-600 dark:text-green-400 font-medium">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                        AES-256-GCM
+                    </span>
+                </div>
+            </div>
+            <p class="text-xs theme-text-secondary leading-relaxed">
+                ${AR ? 'البيانات تتزامن تلقائياً عند كل تغيير. يمكنك المزامنة اليدوية أدناه.' : 'Data syncs automatically on every change. You can also force a manual sync below.'}
+            </p>
+            <button onclick="syncNow()" class="w-full py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                ${AR ? 'مزامنة الآن' : 'Sync Now'}
+            </button>
+            <button onclick="disconnectSync().then(()=>{ document.getElementById('syncModal')?.remove(); openSyncModal(); })"
+                class="w-full py-2 rounded-xl border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                ${AR ? 'قطع الاتصال' : 'Disconnect'}
+            </button>
+
+        ` : `
+            <!-- ── Setup state ── -->
+            <p class="text-sm theme-text-secondary leading-relaxed">
+                ${AR
+                    ? 'المزامنة تتيح مشاركة بياناتك (الأحداث، المهام، اليومية) بين أجهزة متعددة في الوقت الفعلي.'
+                    : 'Sync shares your data (events, tasks, journal) across devices in real time. Requires a free Firebase project.'}
+            </p>
+
+            <!-- Setup instructions -->
+            <div class="theme-bg-tertiary rounded-xl p-4 space-y-2.5">
+                <p class="text-xs font-semibold theme-text mb-1">${AR ? 'الإعداد (مرة واحدة فقط):' : 'One-time setup:'}</p>
+                <div class="flex gap-2.5 text-xs theme-text-secondary">
+                    <span class="text-blue-500 font-bold shrink-0">1</span>
+                    <span>${AR ? 'افتح' : 'Open'} <a href="https://console.firebase.google.com" target="_blank" rel="noopener" class="text-blue-500 underline">console.firebase.google.com</a></span>
+                </div>
+                <div class="flex gap-2.5 text-xs theme-text-secondary">
+                    <span class="text-blue-500 font-bold shrink-0">2</span>
+                    <span>${AR ? 'أنشئ مشروعاً → أضف تطبيق ويب &lt;/&gt; → انسخ apiKey و projectId' : 'Create project → Add Web app &lt;/&gt; → copy apiKey & projectId'}</span>
+                </div>
+                <div class="flex gap-2.5 text-xs theme-text-secondary">
+                    <span class="text-blue-500 font-bold shrink-0">3</span>
+                    <span>${AR ? 'فعّل Firestore Database بوضع Test Mode' : 'Enable Firestore Database → start in Test Mode'}</span>
+                </div>
+                <div class="flex gap-2.5 text-xs theme-text-secondary">
+                    <span class="text-blue-500 font-bold shrink-0">4</span>
+                    <span>${AR ? 'أدخل رمز البوابة ورمز المزامنة أدناه — استخدمهما على كل أجهزتك' : 'Enter both codes below and use the same codes on all your devices'}</span>
+                </div>
+            </div>
+
+            <!-- Input fields -->
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-medium theme-text-secondary mb-1">API Key</label>
+                    <input id="syncApiKey" type="text" value="${cfg?.apiKey || ''}"
+                        placeholder="AIzaSy…" dir="ltr" autocomplete="off" autocorrect="off" spellcheck="false"
+                        class="w-full theme-bg-tertiary border theme-border rounded-xl px-3 py-2.5 text-sm theme-text focus:ring-2 focus:ring-blue-500 font-mono">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium theme-text-secondary mb-1">Project ID</label>
+                    <input id="syncProjectId" type="text" value="${cfg?.projectId || ''}"
+                        placeholder="my-project-abc123" dir="ltr" autocomplete="off" autocorrect="off" spellcheck="false"
+                        class="w-full theme-bg-tertiary border theme-border rounded-xl px-3 py-2.5 text-sm theme-text focus:ring-2 focus:ring-blue-500 font-mono">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium theme-text-secondary mb-1">
+                        ${AR ? 'رمز البوابة' : 'Gate Code'}
+                        <span class="font-normal opacity-60 ml-1">${AR ? '(مسار Firestore)' : '(Firestore path lock)'}</span>
+                    </label>
+                    <input id="gateCodeInput" type="text" value="${cfg?.gateCode || ''}"
+                        placeholder="${AR ? 'مثال: my-secret-gate' : 'e.g. my-secret-gate'}" dir="ltr"
+                        class="w-full theme-bg-tertiary border theme-border rounded-xl px-3 py-2.5 text-sm theme-text focus:ring-2 focus:ring-blue-500">
+                    <p class="text-xs theme-text-secondary mt-1.5 leading-relaxed">
+                        ${AR ? 'يُستخدم كمسار في Firestore. ضعه في قواعد Firestore لمنع وصول غير المصرح لهم.' : 'Used as the Firestore path. Put this in your Firestore rules to block unauthorised access.'}
+                    </p>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium theme-text-secondary mb-1">
+                        ${AR ? 'رمز المزامنة' : 'Sync Code'}
+                        <span class="font-normal opacity-60 ml-1">${AR ? '(مفتاح التشفير)' : '(encryption key)'}</span>
+                    </label>
+                    <input id="syncCodeInput" type="text" value="${cfg?.syncCode || ''}"
+                        placeholder="${AR ? 'مثال: ahmed-cal-2025' : 'e.g. ahmed-cal-2025'}" dir="ltr"
+                        class="w-full theme-bg-tertiary border theme-border rounded-xl px-3 py-2.5 text-sm theme-text focus:ring-2 focus:ring-blue-500">
+                    <p class="text-xs theme-text-secondary mt-1.5 leading-relaxed">
+                        ${AR ? 'يُستخدم لتشفير البيانات. حتى لو وصل أحد لـ Firestore يرى نصاً مشفراً فقط.' : 'Used to encrypt your data. Even with Firestore access, all anyone sees is ciphertext.'}
+                    </p>
+                </div>
+            </div>
+
+            <div id="syncConnectError" class="hidden text-sm text-red-500 px-1 py-2 bg-red-50 dark:bg-red-900/20 rounded-lg"></div>
+
+            <button onclick="handleConnectSync()"
+                class="w-full py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                ${AR ? 'اتصال' : 'Connect'}
+            </button>
+        `}
+        </div>
+    </div>`;
+
+    document.body.appendChild(modal);
+    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+}
+
+async function handleConnectSync() {
+    const apiKey    = document.getElementById('syncApiKey')?.value?.trim();
+    const projectId = document.getElementById('syncProjectId')?.value?.trim();
+    const gateCode  = document.getElementById('gateCodeInput')?.value?.trim();
+    const syncCode  = document.getElementById('syncCodeInput')?.value?.trim();
+    const errEl     = document.getElementById('syncConnectError');
+    const AR        = state.language === 'ar';
+
+    const showErr = msg => {
+        if (errEl) { errEl.textContent = msg; errEl.classList.remove('hidden'); }
+    };
+
+    if (!apiKey)    return showErr(AR ? 'يرجى إدخال API Key.'                         : 'Please enter your API Key.');
+    if (!projectId) return showErr(AR ? 'يرجى إدخال Project ID.'                      : 'Please enter your Project ID.');
+    if (!gateCode)  return showErr(AR ? 'يرجى إدخال رمز البوابة.'                     : 'Please enter a gate code.');
+    if (gateCode.length < 6)  return showErr(AR ? 'رمز البوابة يجب أن يكون 6 أحرف على الأقل.'  : 'Gate code must be at least 6 characters.');
+    if (!syncCode)  return showErr(AR ? 'يرجى إدخال رمز المزامنة.'                    : 'Please enter a sync code.');
+    if (syncCode.length < 6)  return showErr(AR ? 'رمز المزامنة يجب أن يكون 6 أحرف على الأقل.' : 'Sync code must be at least 6 characters.');
+    if (gateCode === syncCode) return showErr(AR ? 'يجب أن يكون الرمزان مختلفَين.'    : 'Gate code and sync code must be different.');
+
+    const btn = document.querySelector('#syncModal button[onclick="handleConnectSync()"]');
+    if (btn) { btn.disabled = true; btn.textContent = AR ? 'جارٍ الاتصال…' : 'Connecting…'; }
+    if (errEl) errEl.classList.add('hidden');
+
+    try {
+        await connectSync(apiKey, projectId, syncCode, gateCode);
+        document.getElementById('syncModal')?.remove();
+        const toast = document.createElement('div');
+        toast.className = 'fixed top-20 left-1/2 -translate-x-1/2 bg-green-600 text-white text-sm font-medium px-5 py-3 rounded-full shadow-xl z-[400] flex items-center gap-2 pointer-events-none';
+        toast.innerHTML = `<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span>${AR ? 'تم الاتصال بالمزامنة ✓' : 'Sync connected ✓'}</span>`;
+        document.body.appendChild(toast);
+        setTimeout(() => { toast.style.transition='opacity 0.4s'; toast.style.opacity='0'; setTimeout(()=>toast.remove(),400); }, 3000);
+    } catch (e) {
+        const msg = e?.message?.includes('invalid') || e?.code === 'auth/invalid-api-key'
+            ? (AR ? 'API Key غير صحيح.' : 'Invalid API Key.')
+            : (AR ? 'فشل الاتصال. تحقق من البيانات وأن Firestore مفعّل.' : 'Connection failed. Check your credentials and that Firestore is enabled.');
+        showErr(msg);
+        if (btn) { btn.disabled = false; btn.textContent = AR ? 'اتصال' : 'Connect'; }
+    }
+}
+
+async function syncNow() {
+    if (!isSyncEnabled()) { openSyncModal(); return; }
+    document.getElementById('syncModal')?.remove();
+    await pullAndMerge(state.currentUser);
+    await pushUserData(state.currentUser);
+    const AR = state.language === 'ar';
+    const toast = document.createElement('div');
+    toast.className = 'fixed top-20 left-1/2 -translate-x-1/2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-sm font-medium px-5 py-3 rounded-full shadow-xl z-[400] pointer-events-none';
+    toast.textContent = AR ? '✓ تمت المزامنة' : '✓ Synced';
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.style.transition='opacity 0.4s'; toast.style.opacity='0'; setTimeout(()=>toast.remove(),400); }, 2000);
+}
+
+
 // DOUBLE-BACK TO EXIT (mobile)
 let _backPressCount = 0;
 let _backPressTimer = null;
@@ -6343,6 +6904,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadUsers();
     loadAllData();
     if (state.language === 'ar') applyLanguage();
+    initSync();
     await initLocation();
     renderWeekView();
     renderMiniCalendar();
