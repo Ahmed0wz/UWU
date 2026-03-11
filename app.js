@@ -6534,6 +6534,52 @@ function initNotifications() {
 }
 
 
+// ─── Notification debug helper (call notifDebug() in console) ────────
+async function notifDebug() {
+    const lines = [];
+    lines.push('=== Notification Debug ===');
+    lines.push('Notification API: ' + ('Notification' in window ? 'YES' : 'NO'));
+    lines.push('Permission: ' + (('Notification' in window) ? Notification.permission : 'N/A'));
+    lines.push('ServiceWorker API: ' + ('serviceWorker' in navigator ? 'YES' : 'NO'));
+
+    if ('serviceWorker' in navigator) {
+        try {
+            const reg = await navigator.serviceWorker.getRegistration();
+            lines.push('SW registered: ' + (reg ? 'YES' : 'NO'));
+            if (reg) {
+                lines.push('SW active: '  + (reg.active  ? reg.active.state  : 'none'));
+                lines.push('SW waiting: ' + (reg.waiting ? reg.waiting.state : 'none'));
+                lines.push('SW scope: '   + reg.scope);
+            }
+        } catch(e) { lines.push('SW check error: ' + e.message); }
+    }
+
+    const scheduled = _getScheduled();
+    lines.push('Scheduled notifs in storage: ' + scheduled.length);
+    scheduled.forEach(n => {
+        const inMs = n.timestamp - Date.now();
+        lines.push('  [' + n.id + '] "' + n.title + '" fires in ' + Math.round(inMs/1000) + 's  (timestamp=' + n.timestamp + ')');
+    });
+
+    lines.push('_firedNotifs this session: ' + [..._firedNotifs].join(', '));
+    lines.push('Tick interval running: ' + (_notifCheckInterval ? 'YES' : 'NO'));
+
+    // Test if Notification constructor works right now
+    if (Notification.permission === 'granted') {
+        lines.push('--- Firing a TEST notification now ---');
+        try {
+            new Notification('Test ✓', { body: 'Notifications are working!', icon: '/UWU/icon.png' });
+            lines.push('Test notification fired OK');
+        } catch(e) { lines.push('Test notification FAILED: ' + e.message); }
+    }
+
+    const out = lines.join('\n');
+    console.log(out);
+    alert(out);
+    return out;
+}
+window.notifDebug = notifDebug;
+
 // ══════════════════════════════════════════════════════════════════════════
 // FIREBASE SYNC MODULE
 // localStorage is always primary — the app works 100% offline.
