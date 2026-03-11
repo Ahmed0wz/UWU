@@ -131,6 +131,19 @@ const TRANSLATIONS = {
     lastDay:         'Use last day of month',
     skipMonth:       'Skip that month',
     syncData:        'Sync',
+    reminderNone:    'No reminder',
+    reminderAtTime:  'At event time',
+    reminder5:       '5 minutes before',
+    reminder10:      '10 minutes before',
+    reminder15:      '15 minutes before',
+    reminder30:      '30 minutes before',
+    reminder60:      '1 hour before',
+    reminder120:     '2 hours before',
+    reminder1440:    '1 day before',
+    notifPermTitle:  'Enable Notifications',
+    notifPermBody:   'Get reminders for your events. You can turn this off anytime in browser settings.',
+    notifPermAllow:  'Allow',
+    notifPermSkip:   'Not now',
     currentAccount:  'current',
     onlyAccount:     'only account',
     errEmptyName:    'Please enter an account name.',
@@ -244,6 +257,19 @@ const TRANSLATIONS = {
     lastDay:         'استخدم آخر يوم',
     skipMonth:       'تخطَّ الشهر',
     syncData:        'مزامنة',
+    reminderNone:    'بدون تذكير',
+    reminderAtTime:  'عند وقت الحدث',
+    reminder5:       'قبل 5 دقائق',
+    reminder10:      'قبل 10 دقائق',
+    reminder15:      'قبل 15 دقيقة',
+    reminder30:      'قبل 30 دقيقة',
+    reminder60:      'قبل ساعة',
+    reminder120:     'قبل ساعتين',
+    reminder1440:    'قبل يوم',
+    notifPermTitle:  'تفعيل الإشعارات',
+    notifPermBody:   'احصل على تذكيرات لأحداثك. يمكنك إيقافها في أي وقت من إعدادات المتصفح.',
+    notifPermAllow:  'السماح',
+    notifPermSkip:   'ليس الآن',
     currentAccount:  'الحالي',
     onlyAccount:     'حساب وحيد',
     errEmptyName:    'يرجى إدخال اسم الحساب.',
@@ -2379,6 +2405,11 @@ async function openModal(event = null, date = null, time = null) {
             eventRepeat.value = (event.repeat && event.repeat !== 'none') ? event.repeat : 'none';
             if (event.repeat === 'custom') showCustomRepeatOptions(event.repeatConfig);
         }
+        // Populate reminder field
+        const reminderSel = document.getElementById('eventReminder');
+        if (reminderSel) {
+            reminderSel.value = (event.reminderMinutes != null) ? String(event.reminderMinutes) : 'none';
+        }
         if (deleteBtn) deleteBtn.classList.remove('hidden');
     } else {
         // NEW event
@@ -2400,6 +2431,8 @@ async function openModal(event = null, date = null, time = null) {
 
         const eventRepeat = document.getElementById('eventRepeat');
         if (eventRepeat) eventRepeat.value = 'none';
+        const reminderSel = document.getElementById('eventReminder');
+        if (reminderSel) reminderSel.value = 'none';
         if (deleteBtn) deleteBtn.classList.add('hidden');
     }
     updatePrayerTimeVisibility();
@@ -2563,7 +2596,11 @@ async function handleFormSubmit(e) {
         description: eventDescription ? eventDescription.value : '',
         repeat: eventRepeat ? eventRepeat.value : 'none',
         points: eventPoints ? parseInt(eventPoints.value) || 0 : 0,
-        completed: false
+        completed: false,
+        reminderMinutes: (() => {
+            const r = document.getElementById('eventReminder')?.value;
+            return (!r || r === 'none') ? null : parseInt(r);
+        })(),
     };
 
     if (!isAllDay) {
@@ -2642,6 +2679,7 @@ async function handleFormSubmit(e) {
     }
 
     saveEvents();
+    scheduleEventNotification(eventData);
     renderCurrentView();
     closeModal();
 }
@@ -3106,6 +3144,7 @@ function confirmEditSeries(editAll) {
 
 function deleteEvent() {
     if (!state.editingEventId) return;
+    cancelEventNotification(state.editingEventId);
     const eventToDelete = events.find(e => e.id === state.editingEventId);
     const isRepeating = eventToDelete && eventToDelete.repeat && eventToDelete.repeat !== 'none';
 
@@ -5473,7 +5512,7 @@ function openAccountSettings(e) {
             <button onclick="openSyncModal(); closeAccountSettings();" class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg hover:theme-bg-tertiary transition-colors text-left text-sm">
                 <svg class="w-4 h-4 flex-shrink-0 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
                 <span>${t('syncData')}</span>
-                <span class="ml-auto flex items-center gap-1.5"><span id="syncStatusDot" class="w-2 h-2 rounded-full ${getSyncStatus()==='connected'?'bg-green-500':'bg-gray-400'}"></span><span id="syncStatusLabel" class="text-xs theme-text-secondary">${getSyncStatus()==='connected'?(state.language==='ar'?'متصل':'Connected'):(state.language==='ar'?'غير متصل':'Not connected')}</span></span>
+                <span class="ml-auto flex items-center gap-1.5"><span id="syncStatusDot" class="w-2 h-2 rounded-full ${isSyncEnabled()?'bg-green-500':'bg-gray-400'}"></span><span id="syncStatusLabel" class="text-xs theme-text-secondary">${isSyncEnabled()?(state.language==='ar'?'متصل':'Connected'):(state.language==='ar'?'غير متصل':'Not connected')}</span></span>
             </button>
             <button onclick="toggleLanguage()" class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg hover:theme-bg-tertiary transition-colors text-left text-sm">
                 <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>
@@ -6291,6 +6330,150 @@ function setupEventListeners() {
 }
 
 
+
+// ══════════════════════════════════════════════════════════════════════════
+// NOTIFICATIONS MODULE
+// Uses a Service Worker to fire local notifications at the right time.
+// localStorage key: 'uwu_scheduled_notifs' — array of pending items.
+// On every page load, pending notifications are re-sent to the SW
+// so timers survive app restarts (as long as SW is still alive).
+// ══════════════════════════════════════════════════════════════════════════
+
+const NOTIF_STORAGE_KEY = 'uwu_scheduled_notifs';
+
+function _getScheduled() {
+    try { return JSON.parse(localStorage.getItem(NOTIF_STORAGE_KEY) || '[]'); } catch { return []; }
+}
+function _saveScheduled(arr) {
+    localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(arr));
+}
+
+async function _swReady() {
+    if (!('serviceWorker' in navigator)) return null;
+    try {
+        const reg = await navigator.serviceWorker.ready;
+        return reg.active || null;
+    } catch { return null; }
+}
+
+async function _postToSW(msg) {
+    const sw = await _swReady();
+    if (sw) sw.postMessage(msg);
+}
+
+// ─── Permission prompt ────────────────────────────────────────────────
+
+function requestNotificationPermission() {
+    if (!('Notification' in window)) return;
+    if (Notification.permission !== 'default') return;   // already granted or denied
+
+    const AR = state.language === 'ar';
+    const banner = document.createElement('div');
+    banner.id = 'notifPermBanner';
+    banner.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm theme-bg border theme-border rounded-2xl shadow-2xl z-[300] p-4 flex flex-col gap-3';
+    banner.innerHTML = `
+        <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <p class="text-sm font-semibold theme-text">${t('notifPermTitle')}</p>
+                <p class="text-xs theme-text-secondary mt-0.5 leading-relaxed">${t('notifPermBody')}</p>
+            </div>
+        </div>
+        <div class="flex gap-2">
+            <button id="notifPermSkipBtn" class="flex-1 py-2 rounded-xl border theme-border text-sm theme-text-secondary hover:theme-bg-tertiary transition-colors">${t('notifPermSkip')}</button>
+            <button id="notifPermAllowBtn" class="flex-1 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium transition-colors">${t('notifPermAllow')}</button>
+        </div>`;
+
+    document.body.appendChild(banner);
+
+    document.getElementById('notifPermSkipBtn').onclick = () => {
+        banner.remove();
+        localStorage.setItem('uwu_notif_skipped', '1');
+    };
+    document.getElementById('notifPermAllowBtn').onclick = async () => {
+        banner.remove();
+        const result = await Notification.requestPermission();
+        if (result === 'granted') {
+            // Re-register all pending notifications now that we have permission
+            await _rescheduleAll();
+        }
+    };
+}
+
+// ─── Schedule a notification for a single event ───────────────────────
+
+async function scheduleEventNotification(ev) {
+    // Cancel any previous notification for this event first
+    await cancelEventNotification(ev.id);
+
+    if (ev.reminderMinutes == null || ev.isAllDay) return;
+    if (!('Notification' in window)) return;
+
+    // Calculate fire timestamp
+    const eventDateTime = new Date(`${ev.date}T${ev.startTime || '09:00'}:00`);
+    const fireAt = eventDateTime.getTime() - (ev.reminderMinutes * 60 * 1000);
+    if (fireAt <= Date.now()) return;   // already past
+
+    const body = ev.reminderMinutes === 0
+        ? (state.language === 'ar' ? 'يبدأ الآن' : 'Starting now')
+        : (state.language === 'ar'
+            ? `يبدأ خلال ${ev.reminderMinutes < 60 ? ev.reminderMinutes + ' دقيقة' : (ev.reminderMinutes/60) + ' ساعة'}`
+            : `Starts in ${ev.reminderMinutes < 60 ? ev.reminderMinutes + ' min' : (ev.reminderMinutes/60) + ' hr'}`);
+
+    const entry = { id: ev.id, title: ev.title, body, timestamp: fireAt };
+
+    // Persist to localStorage so we can re-schedule after page reload
+    const scheduled = _getScheduled().filter(n => n.id !== ev.id);
+    scheduled.push(entry);
+    _saveScheduled(scheduled);
+
+    // Send to SW if permission granted
+    if (Notification.permission === 'granted') {
+        await _postToSW({ type: 'SCHEDULE', ...entry });
+    }
+}
+
+async function cancelEventNotification(eventId) {
+    const scheduled = _getScheduled().filter(n => n.id !== eventId);
+    _saveScheduled(scheduled);
+    await _postToSW({ type: 'CANCEL', id: eventId });
+}
+
+// ─── Re-send all pending notifications to SW (called on page load) ───
+
+async function _rescheduleAll() {
+    const now = Date.now();
+    const scheduled = _getScheduled().filter(n => n.timestamp > now);
+    _saveScheduled(scheduled);   // prune expired ones
+    if (Notification.permission !== 'granted') return;
+    for (const entry of scheduled) {
+        await _postToSW({ type: 'SCHEDULE', ...entry });
+    }
+}
+
+// ─── Init (called on DOMContentLoaded) ───────────────────────────────
+
+function initNotifications() {
+    if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
+
+    // Re-schedule surviving notifications
+    if (Notification.permission === 'granted') {
+        _rescheduleAll();
+    }
+
+    // Show permission prompt once (skip if already decided or skipped)
+    const skipped = localStorage.getItem('uwu_notif_skipped');
+    if (Notification.permission === 'default' && !skipped) {
+        // Delay prompt so it doesn't appear right on load
+        setTimeout(requestNotificationPermission, 4000);
+    }
+}
+
+
 // ══════════════════════════════════════════════════════════════════════════
 // FIREBASE SYNC MODULE
 // localStorage is always primary — the app works 100% offline.
@@ -6906,6 +7089,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadAllData();
     if (state.language === 'ar') applyLanguage();
     initSync();
+    initNotifications();
     await initLocation();
     renderWeekView();
     renderMiniCalendar();

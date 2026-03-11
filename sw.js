@@ -19,6 +19,53 @@ const CACHEABLE_ORIGINS = [
     'https://cdn.tailwindcss.com'
 ];
 
+
+// ─── Notification timers ──────────────────────────────────────────────
+const _timers = {};
+
+self.addEventListener('message', e => {
+    const msg = e.data;
+    if (!msg || !msg.type) return;
+
+    if (msg.type === 'SCHEDULE') {
+        const { id, title, body, timestamp } = msg;
+        const delay = timestamp - Date.now();
+        if (delay <= 0) return;
+        if (_timers[id]) clearTimeout(_timers[id]);
+        _timers[id] = setTimeout(() => {
+            delete _timers[id];
+            self.registration.showNotification(title, {
+                body,
+                icon:  '/UWU/icons/icon-192.png',
+                badge: '/UWU/icons/icon-192.png',
+                tag:   String(id),
+                renotify: false,
+                data: { eventId: id },
+            });
+        }, delay);
+    }
+
+    if (msg.type === 'CANCEL') {
+        if (_timers[msg.id]) { clearTimeout(_timers[msg.id]); delete _timers[msg.id]; }
+    }
+
+    if (msg.type === 'CANCEL_ALL') {
+        Object.keys(_timers).forEach(k => { clearTimeout(_timers[k]); delete _timers[k]; });
+    }
+});
+
+self.addEventListener('notificationclick', e => {
+    e.notification.close();
+    e.waitUntil(
+        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+            for (const client of clients) {
+                if ('focus' in client) return client.focus();
+            }
+            return self.clients.openWindow('/UWU/');
+        })
+    );
+});
+
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL))

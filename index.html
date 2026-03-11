@@ -381,6 +381,24 @@
                     <textarea id="eventDescription" placeholder="Add description" data-i18n="addDescription" rows="3" class="flex-1 theme-bg-tertiary border theme-border rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent theme-text resize-none"></textarea>
                 </div>
 
+                <!-- Reminder -->
+                <div class="flex items-center space-x-3 text-sm theme-text-secondary">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                    <select id="eventReminder" class="flex-1 theme-bg-tertiary border theme-border rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent theme-text">
+                        <option value="none" data-i18n="reminderNone">No reminder</option>
+                        <option value="0"    data-i18n="reminderAtTime">At event time</option>
+                        <option value="5"    data-i18n="reminder5">5 minutes before</option>
+                        <option value="10"   data-i18n="reminder10">10 minutes before</option>
+                        <option value="15"   data-i18n="reminder15">15 minutes before</option>
+                        <option value="30"   data-i18n="reminder30">30 minutes before</option>
+                        <option value="60"   data-i18n="reminder60">1 hour before</option>
+                        <option value="120"  data-i18n="reminder120">2 hours before</option>
+                        <option value="1440" data-i18n="reminder1440">1 day before</option>
+                    </select>
+                </div>
+
                 <!-- Buttons -->
                 <div class="flex items-center justify-between pt-4 border-t theme-border sticky bottom-0 theme-bg pb-2">
                     <button type="button" onclick="deleteEvent()" id="deleteBtn" class="text-red-600 hover:text-red-700 text-sm font-medium hidden"><span data-i18n="delete">Delete</span></button>
@@ -840,6 +858,13 @@
 
 
     <input type="file" id="pfpInput" class="hidden" accept="image/*" onchange="handlePfpUpload(event)">
+
+    <!-- Service Worker registration -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/UWU/sw.js').catch(e => console.warn('[SW] Registration failed:', e));
+    }
+    </script>
 
     <!-- Firebase Sync SDK (optional — only activates if configured in Settings → Sync) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
