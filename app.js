@@ -20,6 +20,13 @@ const STORAGE_KEYS = {
     CALENDAR_MODE: (user) => `calendar_mode_${user}`,
     HIJRI_OFFSETS: (user) => `calendar_hijri_offsets_${user}`,
     LANGUAGE:        'calendar_language',
+    ALARM_DIFFICULTY: 'uwu_alarm_difficulty',
+    ALARM_EQ_COUNT:   'uwu_alarm_eq_count',
+    STANDALONE_ALARMS: 'uwu_standalone_alarms',
+    ALARM_RINGTONE:   'uwu_alarm_ringtone',
+    ALARM_RINGTONE_NAME: 'uwu_alarm_ringtone_name',
+    ALARM_SNOOZE_MIN: 'uwu_alarm_snooze_min',
+    ALARM_GENTLE_WAKE: 'uwu_alarm_gentle_wake',
     SYNC_CONFIG:     'calendar_sync_config',
     SYNC_META:       'calendar_sync_meta',
     SYNC_STATUS:     'calendar_sync_status',
@@ -152,6 +159,84 @@ const TRANSLATIONS = {
     hijriYearSuffix: 'AH',
     Fajr: 'Fajr', Sunrise: 'Sunrise', Dhuhr: 'Dhuhr',
     Asr: 'Asr', Maghrib: 'Maghrib', Isha: 'Isha',
+    // Prayer UI
+    startPrayer:       'Start prayer',
+    endPrayer:         'End prayer',
+    offsetMin:         'Offset (min)',
+    afterBefore:       '+ after · − before',
+    eventTimePreview:  'Event time:',
+    // Alarm edit screen
+    alarmNewTitle:     'New Alarm',
+    alarmEditTitle:    'Edit Alarm',
+    alarmLabel:        'Label',
+    alarmRepeat:       'Repeat',
+    alarmSound:        'Sound',
+    alarmSnooze:       'Snooze',
+    alarmEqTypes:      'Eq. Types',
+    alarmCount:        'Count',
+    alarmGentleWake:   'Gentle wake',
+    alarmGentleDesc:   'Volume ramps up over 30 sec',
+    alarmWakeCheck:    'Wake up check',
+    alarmWakeDesc:     'Re-fires if not confirmed within 2 min',
+    alarmSafetyStop:   'Safety stop',
+    alarmSafetyDesc:   'Stop button appears after 5 min',
+    alarmWallpaper:    'Wallpaper',
+    alarmPreview:      'Preview alarm',
+    alarmDelete:       'Delete Alarm',
+    alarmCustomImg:    'Custom image',
+    alarmNoTypes:      'No types selected',
+    alarmOneTime:      'One time',
+    alarmEveryDay:     'Every day',
+    alarmWeekdays:     'Weekdays',
+    alarmWeekends:     'Weekends',
+    alarmWeekly:       'Weekly',
+    alarmSnoozeOff:    'Off',
+    alarmSnoozeMin:    'min',
+    alarmEqCount:      'equation',
+    alarmEqCountPl:    'equations',
+    alarmSnoozeLimit:  'Snooze limit',
+    alarmSnoozeLimitUnlimited: 'Unlimited',
+    alarmSnoozeLimitTimes: 'time',
+    alarmSnoozeLimitTimespl: 'times',
+    // Equation type picker
+    eqTypesTitle:      'Equation Types',
+    eqDiffTitle:       'Difficulty',
+    eqGroupArith:      'Arithmetic',
+    eqGroupAlgebra:    'Algebra',
+    eqGroupGeometry:   'Geometry',
+    eqGroupOther:      'Other',
+    eqAdd:             '+ Add',
+    // Difficulty labels
+    diffEasy:          'Easy',
+    diffMedium:        'Medium',
+    diffHard:          'Hard',
+    diffVeryHard:      'Very Hard',
+    diffExpert:        'Expert',
+    // Eq type names
+    eqAddSub:          'Addition & Subtraction',
+    eqMultiply:        'Multiplication',
+    eqDivide:          'Division',
+    eqMixedChains:     'Mixed chains',
+    eqDiffSquares:     'Difference of squares',
+    eqLinearX:         'Solve for x',
+    eqAx2:             'ax² = c',
+    eqQuadRoots:       'Quadratic (sum of roots)',
+    eqQuadVertex:      'Quadratic (vertex)',
+    eqExpand:          'Expand brackets',
+    eqCubic:           'Cubic roots',
+    eqCircleArea:      'Circle area',
+    eqArcLength:       'Arc length',
+    eqSectorArea:      'Sector area',
+    eqChord:           'Chord length',
+    eqPercentage:      'Percentage of percentage',
+    eqComplexAdd:      'Complex +/−',
+    eqComplexMul:      'Complex ×',
+    // Alarms list
+    alarmsTitle:       'Alarms',
+    alarmOnce:         'Once',
+    alarmConfigureAlarm: 'Configure alarm…',
+    prev:            'Prev',
+    next:            'Next',
     hijriMonths: ['January','February','March','April','May','June','July','August','September','October','November','December'],
     hijriMonthNames: ['Muharram','Safar',"Rabi' al-awwal","Rabi' al-thani","Jumada al-awwal","Jumada al-thani",'Rajab',"Sha'ban",'Ramadan','Shawwal',"Dhu al-Qi'dah",'Dhu al-Hijjah'],
   },
@@ -278,6 +363,84 @@ const TRANSLATIONS = {
     hijriYearSuffix: 'هـ',
     Fajr: 'الفجر', Sunrise: 'الشروق', Dhuhr: 'الظهر',
     Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء',
+    // Prayer UI
+    startPrayer:       'صلاة البداية',
+    endPrayer:         'صلاة النهاية',
+    offsetMin:         'الإزاحة (دقيقة)',
+    afterBefore:       '+ بعد · − قبل',
+    eventTimePreview:  'وقت الحدث:',
+    // Alarm edit screen
+    alarmNewTitle:     'منبّه جديد',
+    alarmEditTitle:    'تعديل المنبّه',
+    alarmLabel:        'الاسم',
+    alarmRepeat:       'التكرار',
+    alarmSound:        'الصوت',
+    alarmSnooze:       'الغفوة',
+    alarmEqTypes:      'أنواع المعادلات',
+    alarmCount:        'العدد',
+    alarmGentleWake:   'إيقاظ تدريجي',
+    alarmGentleDesc:   'يرتفع الصوت تدريجياً خلال ٣٠ ثانية',
+    alarmWakeCheck:    'التحقق من الاستيقاظ',
+    alarmWakeDesc:     'يُعيد الرنين إذا لم يُؤكَّد خلال دقيقتين',
+    alarmSafetyStop:   'إيقاف الطوارئ',
+    alarmSafetyDesc:   'زر الإيقاف يظهر بعد ٥ دقائق',
+    alarmWallpaper:    'خلفية المنبّه',
+    alarmPreview:      'معاينة المنبّه',
+    alarmDelete:       'حذف المنبّه',
+    alarmCustomImg:    'صورة مخصصة',
+    alarmNoTypes:      'لم تُختَر أنواع',
+    alarmOneTime:      'مرة واحدة',
+    alarmEveryDay:     'كل يوم',
+    alarmWeekdays:     'أيام الأسبوع',
+    alarmWeekends:     'عطلة نهاية الأسبوع',
+    alarmWeekly:       'أسبوعياً',
+    alarmSnoozeOff:    'إيقاف',
+    alarmSnoozeMin:    'دقيقة',
+    alarmEqCount:      'معادلة',
+    alarmEqCountPl:    'معادلات',
+    alarmSnoozeLimit:  'حد الغفوة',
+    alarmSnoozeLimitUnlimited: 'غير محدود',
+    alarmSnoozeLimitTimes: 'مرة',
+    alarmSnoozeLimitTimespl: 'مرات',
+    // Equation type picker
+    eqTypesTitle:      'أنواع المعادلات',
+    eqDiffTitle:       'الصعوبة',
+    eqGroupArith:      'حسابيات',
+    eqGroupAlgebra:    'جبر',
+    eqGroupGeometry:   'هندسة',
+    eqGroupOther:      'أخرى',
+    eqAdd:             '+ إضافة',
+    // Difficulty labels
+    diffEasy:          'سهل',
+    diffMedium:        'متوسط',
+    diffHard:          'صعب',
+    diffVeryHard:      'صعب جداً',
+    diffExpert:        'خبير',
+    // Eq type names
+    eqAddSub:          'جمع وطرح',
+    eqMultiply:        'ضرب',
+    eqDivide:          'قسمة',
+    eqMixedChains:     'سلاسل مختلطة',
+    eqDiffSquares:     'فرق المربعات',
+    eqLinearX:         'حل معادلة من الدرجة الأولى',
+    eqAx2:             'ax² = c',
+    eqQuadRoots:       'معادلة تربيعية (مجموع الجذور)',
+    eqQuadVertex:      'معادلة تربيعية (الرأس)',
+    eqExpand:          'ضرب قوسين',
+    eqCubic:           'جذور المعادلة التكعيبية',
+    eqCircleArea:      'مساحة الدائرة',
+    eqArcLength:       'طول القوس',
+    eqSectorArea:      'مساحة القطاع',
+    eqChord:           'طول الوتر',
+    eqPercentage:      'نسبة مئوية من نسبة',
+    eqComplexAdd:      'أعداد مركبة +/−',
+    eqComplexMul:      'أعداد مركبة ×',
+    // Alarms list
+    alarmsTitle:       'المنبّهات',
+    alarmOnce:         'مرة واحدة',
+    alarmConfigureAlarm: 'إعداد المنبّه…',
+    prev:            'السابق',
+    next:            'التالي',
     hijriMonthNames: ['محرم','صفر','ربيع الأول','ربيع الآخر','جمادى الأولى','جمادى الآخرة','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'],
     monthNamesShort: ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'],
   }
@@ -301,6 +464,7 @@ function toggleLanguage() {
     saveLanguage();
     applyLanguage();
     closeAccountSettings();
+    updateWidgetData();
 }
 
 function applyLanguage() {
@@ -341,6 +505,8 @@ function applyLanguage() {
         const val = t(key);
         if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
             el.placeholder = val;
+        } else if (el.tagName === 'OPTION') {
+            el.textContent = val;
         } else {
             el.textContent = val;
         }
@@ -1332,13 +1498,16 @@ function renderHijriMonthView() {
         div.innerHTML = `
             <div class="flex items-start justify-between mb-1">
                 <span class="text-base font-semibold ${isToday ? 'w-7 h-7 flex items-center justify-center rounded-full bg-blue-600 text-white text-sm' : 'theme-text'}">${hd}</span>
-                <div class="flex flex-col items-end">
+                <div class="flex flex-col items-end gap-0.5">
                     <span class="text-[10px] theme-text-secondary">${gregLabel}</span>
+                    ${getDayIndicator(dateStr)}
                     ${dayOffset !== 0 ? '<span class="text-[9px] text-amber-500">🌙</span>' : ''}
                 </div>
             </div>
-            ${isFriday ? `<div class="text-[9px] text-green-500 font-semibold mb-1">${t('jumuah')}</div>` : ''}
-            <div class="space-y-0.5">${evHtml}</div>
+            <div class="space-y-0.5">
+                ${evHtml}
+                ${dayEvents.length > 3 ? `<div class="text-xs theme-text-secondary">+${dayEvents.length - 3} ${state.language === 'ar' ? 'أخرى' : 'more'}</div>` : ''}
+            </div>
         `;
         grid.appendChild(div);
     }
@@ -1485,7 +1654,7 @@ function removeFromStorage(key) {
     }
 }
 
-function saveJournal() { saveToStorage(STORAGE_KEYS.JOURNAL(state.currentUser), state.journalEntries); syncDebounce(); }
+function saveJournal() { saveToStorage(STORAGE_KEYS.JOURNAL(state.currentUser), state.journalEntries); syncDebounce(); updateWidgetData(); }
 function loadJournal() { state.journalEntries = loadFromStorage(STORAGE_KEYS.JOURNAL(state.currentUser)) || {}; }
 function saveVariables() { saveToStorage(STORAGE_KEYS.VARIABLES(state.currentUser), state.variables); }
 function loadVariables() { state.variables = loadFromStorage(STORAGE_KEYS.VARIABLES(state.currentUser)) || {}; }
@@ -1522,10 +1691,21 @@ function calcYearTaskPts(yearKey) {
     return (state.tasks.year[yearKey] || []).filter(t => t.completed).reduce((s,t) => s+(t.points||0), 0);
 }
 
-// Day total = journal score + day task points
+// Day total = journal score + day task points + completed event points
+
+function fmtScore(n) {
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (n >= 1_000)     return (n / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
+    return String(n);
+}
+function calcDayEventPts(dateStr) {
+    return getEventsForDate(dateStr)
+        .filter(e => e.completed && e.points && state.activeCalendars.includes(e.calendar))
+        .reduce((s, e) => s + (e.points || 0), 0);
+}
 function calcDayTotal(dateStr) {
     const j = state.journalEntries[dateStr];
-    return (j?.score || 0) + calcDayTaskPts(dateStr);
+    return (j?.score || 0) + calcDayTaskPts(dateStr) + calcDayEventPts(dateStr);
 }
 
 function saveShowPrayerTimes() { saveToStorage(STORAGE_KEYS.SHOW_PRAYER_TIMES(state.currentUser), state.showPrayerTimesInView); }
@@ -1584,9 +1764,13 @@ function saveUsers() {
 function switchUser(username) {
     if (!state.users.includes(username)) return;
     saveAllData();
+    // Disconnect sync before switching — each account manages its own sync config
+    if (isSyncEnabled()) disconnectSync();
     state.currentUser = username;
     saveToStorage(STORAGE_KEYS.CURRENT_USER, username);
     loadAllData();
+    // Re-init sync for the new account if it has its own config saved
+    initSync();
     updateForgottenBadge();
     renderCurrentView(); renderMiniCalendar(); renderCalendarList();
     applyBackground(); updateUserDisplay(); closeUserMenu();
@@ -1895,7 +2079,7 @@ function saveLocationSettings() {
 
 // DATA PERSISTENCE
 
-function saveEvents() { saveToStorage(STORAGE_KEYS.EVENTS(state.currentUser), events); syncDebounce(); }
+function saveEvents() { saveToStorage(STORAGE_KEYS.EVENTS(state.currentUser), events); syncDebounce(); updateWidgetData(); }
 function loadEvents() {
     const saved = loadFromStorage(STORAGE_KEYS.EVENTS(state.currentUser)) || [];
     const hadInstances = saved.some(e => e.parentId);
@@ -2380,12 +2564,36 @@ async function openModal(event = null, date = null, time = null) {
 
         if (event.isPrayerBased && event.prayerConfig) {
             togglePrayerTimes(true);
-            const prayerSelect = document.getElementById('prayerTimeSelect');
-            const startOffset = document.getElementById('prayerStartOffset');
-            const endOffset = document.getElementById('prayerEndOffset');
-            if (prayerSelect) prayerSelect.value = event.prayerConfig.prayer;
-            if (startOffset) startOffset.value = event.prayerConfig.startOffset;
-            if (endOffset) endOffset.value = event.prayerConfig.endOffset;
+            const cfg = event.prayerConfig;
+
+            // Start anchor
+            const startType = cfg.startType || 'prayer';
+            setPrayerAnchorType('start', startType);
+            if (startType === 'prayer') {
+                const startPrayer = cfg.startPrayer || cfg.prayer || 'Fajr';
+                const startSel = document.getElementById('prayerStartSelect');
+                const startOff = document.getElementById('prayerStartOffset');
+                if (startSel) startSel.value = startPrayer;
+                if (startOff) startOff.value = cfg.startOffset ?? 0;
+            } else {
+                const el = document.getElementById('prayerStartFixedTime');
+                if (el) el.value = cfg.startFixedTime || event.startTime || '09:00';
+            }
+
+            // End anchor
+            const endType = cfg.endType || 'prayer';
+            setPrayerAnchorType('end', endType);
+            if (endType === 'prayer') {
+                const endPrayer = cfg.endPrayer || cfg.prayer || 'Fajr';
+                const endSel = document.getElementById('prayerEndSelect');
+                const endOff = document.getElementById('prayerEndOffset');
+                if (endSel) endSel.value = endPrayer;
+                if (endOff) endOff.value = cfg.endOffset ?? 0;
+            } else {
+                const el = document.getElementById('prayerEndFixedTime');
+                if (el) el.value = cfg.endFixedTime || event.endTime || '10:00';
+            }
+
             updatePrayerTimeDisplay();
         } else {
             togglePrayerTimes(false);
@@ -2410,6 +2618,29 @@ async function openModal(event = null, date = null, time = null) {
         if (reminderSel) {
             reminderSel.value = (event.reminderMinutes != null) ? String(event.reminderMinutes) : 'none';
         }
+        // Populate reminder type and alarm options
+        localStorage.setItem('_eventAlarmRingtoneUri_tmp',  event.alarmRingtoneUri  || '');
+        localStorage.setItem('_eventAlarmRingtoneName_tmp', event.alarmRingtoneName || 'Default alarm sound');
+        localStorage.setItem('_eventAlarmDifficulty_tmp',   event.alarmDifficulty   || 'medium');
+        localStorage.setItem('_eventAlarmEqCount_tmp',      String(event.alarmEqCount  ?? 2));
+        localStorage.setItem('_eventAlarmSnooze_tmp',       String(event.alarmSnoozeMins ?? 5));
+        localStorage.setItem('_eventAlarmSnoozeLimit_tmp',  String(event.alarmSnoozeLimit ?? 0));
+        localStorage.setItem('_eventAlarmGentleWake_tmp',   String(event.alarmGentleWake !== false));
+        localStorage.setItem('_eventAlarmWakeUpCheck_tmp',  String(!!event.alarmWakeUpCheck));
+        localStorage.setItem('_eventAlarmSafetyStop_tmp',   String(!!event.alarmSafetyStop));
+        _saveEqTypes('_eventAlarmEquationTypes_tmp', event.alarmEquationTypes || []);
+        toggleAlarmOptions();
+        if (event.reminderType === 'alarm') {
+            setReminderType('alarm');
+            const diff = document.getElementById('eventAlarmDifficulty');
+            const snooze = document.getElementById('eventAlarmSnooze');
+            const ringName = document.getElementById('eventAlarmRingtoneName');
+            if (diff)     diff.value    = event.alarmDifficulty || 'medium';
+            if (snooze)   snooze.value  = String(event.alarmSnoozeMins || 5);
+            if (ringName) ringName.textContent = event.alarmRingtoneName || 'Default alarm sound';
+        } else {
+            setReminderType('notification');
+        }
         if (deleteBtn) deleteBtn.classList.remove('hidden');
     } else {
         // NEW event
@@ -2433,6 +2664,27 @@ async function openModal(event = null, date = null, time = null) {
         if (eventRepeat) eventRepeat.value = 'none';
         const reminderSel = document.getElementById('eventReminder');
         if (reminderSel) reminderSel.value = 'none';
+        localStorage.removeItem('_eventAlarmRingtoneUri_tmp');
+        localStorage.removeItem('_eventAlarmRingtoneName_tmp');
+        localStorage.setItem('_eventAlarmDifficulty_tmp',  'medium');
+        localStorage.setItem('_eventAlarmEqCount_tmp',     '2');
+        localStorage.setItem('_eventAlarmSnooze_tmp',      '5');
+        localStorage.setItem('_eventAlarmSnoozeLimit_tmp', '0');
+        localStorage.setItem('_eventAlarmGentleWake_tmp',  'true');
+        localStorage.setItem('_eventAlarmWakeUpCheck_tmp', 'false');
+        localStorage.setItem('_eventAlarmSafetyStop_tmp',  'false');
+        _saveEqTypes('_eventAlarmEquationTypes_tmp', []);
+        setReminderType('notification');
+        toggleAlarmOptions();
+        // Pre-fill from defaults
+        const defs = getAlarmSettings();
+        localStorage.setItem('_eventAlarmRingtoneUri_tmp',  defs.ringtoneUri  || '');
+        localStorage.setItem('_eventAlarmRingtoneName_tmp', defs.ringtoneName || 'Default alarm sound');
+        localStorage.setItem('_eventAlarmDifficulty_tmp',  defs.difficulty   || 'medium');
+        localStorage.setItem('_eventAlarmEqCount_tmp',     String(defs.eqCount  ?? 2));
+        localStorage.setItem('_eventAlarmSnooze_tmp',      String(defs.snoozeMins ?? 5));
+        localStorage.setItem('_eventAlarmGentleWake_tmp',  String(defs.gentleWake !== false));
+        localStorage.setItem('_eventAlarmWakeUpCheck_tmp', 'false');
         if (deleteBtn) deleteBtn.classList.add('hidden');
     }
     updatePrayerTimeVisibility();
@@ -2478,31 +2730,88 @@ function togglePrayerTimes(enabled) {
     }
 }
 
+function setPrayerAnchorType(anchor, type) {
+    // anchor: 'start' | 'end',  type: 'prayer' | 'time'
+    const cap = anchor === 'start' ? 'Start' : 'End';
+    const prayerMode = document.getElementById('prayer' + cap + 'PrayerMode');
+    const timeMode   = document.getElementById('prayer' + cap + 'TimeMode');
+    const btnPrayer  = document.getElementById('prayer' + cap + 'TypePrayer');
+    const btnTime    = document.getElementById('prayer' + cap + 'TypeTime');
+    if (!prayerMode || !timeMode) return;
+
+    const isPrayer = type === 'prayer';
+    prayerMode.classList.toggle('hidden', !isPrayer);
+    timeMode.classList.toggle('hidden', isPrayer);
+
+    // Active button styling
+    btnPrayer?.classList.toggle('bg-blue-500', isPrayer);
+    btnPrayer?.classList.toggle('text-white', isPrayer);
+    btnPrayer?.classList.toggle('font-medium', isPrayer);
+    btnPrayer?.classList.toggle('theme-bg-tertiary', !isPrayer);
+    btnPrayer?.classList.toggle('theme-text', !isPrayer);
+
+    btnTime?.classList.toggle('bg-blue-500', !isPrayer);
+    btnTime?.classList.toggle('text-white', !isPrayer);
+    btnTime?.classList.toggle('font-medium', !isPrayer);
+    btnTime?.classList.toggle('theme-bg-tertiary', isPrayer);
+    btnTime?.classList.toggle('theme-text', isPrayer);
+
+    updatePrayerTimeDisplay();
+}
+
+function _getPrayerAnchorType(anchor) {
+    // Returns 'prayer' or 'time' based on which mode is active
+    const cap = anchor === 'start' ? 'Start' : 'End';
+    const timeMode = document.getElementById('prayer' + cap + 'TimeMode');
+    return (timeMode && !timeMode.classList.contains('hidden')) ? 'time' : 'prayer';
+}
+
 function updatePrayerTimeDisplay() {
     if (!state.prayerTimesForDate || !state.usePrayerTimes) return;
     // Update Dhuhr label to Jumu'ah on Fridays
     const dateInput = document.getElementById('eventDate');
     if (dateInput && dateInput.value) {
         const dow = new Date(dateInput.value + 'T12:00:00').getDay();
-        const prayerSelectEl = document.getElementById('prayerTimeSelect');
-        if (prayerSelectEl) {
-            const dhuhrOpt = prayerSelectEl.querySelector('option[value="Dhuhr"]');
-            if (dhuhrOpt) dhuhrOpt.textContent = dow === 5 ? "Jumu'ah" : "Dhuhr";
-        }
+        ['prayerStartSelect','prayerEndSelect'].forEach(id => {
+            const sel = document.getElementById(id);
+            if (sel) {
+                const opt = sel.querySelector('option[value="Dhuhr"]');
+                if (opt) opt.textContent = dow === 5 ? "Jumu'ah" : "Dhuhr";
+            }
+        });
     }
-    const prayerSelect = document.getElementById('prayerTimeSelect');
-    const startOffset = document.getElementById('prayerStartOffset');
-    const endOffset = document.getElementById('prayerEndOffset');
-    const startTimeDisplay = document.getElementById('prayerStartTimeDisplay');
-    const endTimeDisplay = document.getElementById('prayerEndTimeDisplay');
-    const prayer = prayerSelect ? prayerSelect.value : state.selectedPrayer;
-    const startOff = startOffset ? (v => isNaN(v) ? 0  : v)(parseInt(startOffset.value)) : 0;
-    const endOff   = endOffset   ? (v => isNaN(v) ? 30 : v)(parseInt(endOffset.value))   : 30;
-    const prayerTime = state.prayerTimesForDate[prayer];
-    if (!prayerTime) return;
-    const prayerMinutes = getPrayerTimeInMinutes(prayerTime);
-    if (startTimeDisplay) startTimeDisplay.textContent = minutesToTimeString(prayerMinutes + startOff);
-    if (endTimeDisplay) endTimeDisplay.textContent = minutesToTimeString(prayerMinutes + endOff);
+
+    const startType = _getPrayerAnchorType('start');
+    const endType   = _getPrayerAnchorType('end');
+
+    let startMinutes = null, endMinutes = null;
+
+    if (startType === 'prayer') {
+        const startSel = document.getElementById('prayerStartSelect');
+        const startOff = (v => isNaN(v) ? 0 : v)(parseInt(document.getElementById('prayerStartOffset')?.value));
+        const startPrayer = startSel?.value || 'Fajr';
+        const startTime = state.prayerTimesForDate[startPrayer];
+        if (startTime) startMinutes = getPrayerTimeInMinutes(startTime) + startOff;
+    } else {
+        const val = document.getElementById('prayerStartFixedTime')?.value;
+        if (val) { const [h,m] = val.split(':').map(Number); startMinutes = h*60+m; }
+    }
+
+    if (endType === 'prayer') {
+        const endSel = document.getElementById('prayerEndSelect');
+        const endOff = (v => isNaN(v) ? 0 : v)(parseInt(document.getElementById('prayerEndOffset')?.value));
+        const endPrayer = endSel?.value || 'Fajr';
+        const endTime = state.prayerTimesForDate[endPrayer];
+        if (endTime) endMinutes = getPrayerTimeInMinutes(endTime) + endOff;
+    } else {
+        const val = document.getElementById('prayerEndFixedTime')?.value;
+        if (val) { const [h,m] = val.split(':').map(Number); endMinutes = h*60+m; }
+    }
+
+    const startDisplay = document.getElementById('prayerStartTimeDisplay');
+    const endDisplay   = document.getElementById('prayerEndTimeDisplay');
+    if (startDisplay) startDisplay.textContent = startMinutes !== null ? minutesToTimeString(startMinutes) : '--:--';
+    if (endDisplay)   endDisplay.textContent   = endMinutes   !== null ? minutesToTimeString(endMinutes)   : '--:--';
 }
 
 function updatePrayerTimeVisibility() {
@@ -2601,25 +2910,71 @@ async function handleFormSubmit(e) {
             const r = document.getElementById('eventReminder')?.value;
             return (!r || r === 'none') ? null : parseInt(r);
         })(),
+        reminderType: document.getElementById('typeAlarmBtn')?.classList.contains('bg-orange-500') ? 'alarm' : 'notification',
+        alarmEquationTypes: _getEqTypes('_eventAlarmEquationTypes_tmp'),
+        alarmDifficulty: localStorage.getItem('_eventAlarmDifficulty_tmp') || 'medium',
+        alarmEqCount:    parseInt(localStorage.getItem('_eventAlarmEqCount_tmp')    || '2'),
+        alarmSnoozeMins: parseInt(localStorage.getItem('_eventAlarmSnooze_tmp')     || '5'),
+        alarmSnoozeLimit: parseInt(localStorage.getItem('_eventAlarmSnoozeLimit_tmp') ?? '0'),
+        alarmRingtoneUri:  localStorage.getItem('_eventAlarmRingtoneUri_tmp')  || '',
+        alarmRingtoneName: localStorage.getItem('_eventAlarmRingtoneName_tmp') || 'Default alarm sound',
+        alarmGentleWake:   localStorage.getItem('_eventAlarmGentleWake_tmp')  !== 'false',
+        alarmWakeUpCheck:  localStorage.getItem('_eventAlarmWakeUpCheck_tmp') === 'true',
+        alarmSafetyStop:   localStorage.getItem('_eventAlarmSafetyStop_tmp')  === 'true',
     };
 
     if (!isAllDay) {
         if (state.usePrayerTimes) {
-            const prayerSelect = document.getElementById('prayerTimeSelect');
-            const startOffset = document.getElementById('prayerStartOffset');
-            const endOffset = document.getElementById('prayerEndOffset');
-            const prayer = prayerSelect ? prayerSelect.value : 'Fajr';
-            const startOff = startOffset ? (v => isNaN(v) ? 0  : v)(parseInt(startOffset.value)) : 0;
-            const endOff   = endOffset   ? (v => isNaN(v) ? 30 : v)(parseInt(endOffset.value))   : 30;
-            if (state.prayerTimesForDate) {
-                const prayerTime = state.prayerTimesForDate[prayer];
-                if (prayerTime) {
-                    const prayerMinutes = getPrayerTimeInMinutes(prayerTime);
-                    eventData.startTime = minutesToTimeString(prayerMinutes + startOff);
-                    eventData.endTime = minutesToTimeString(prayerMinutes + endOff);
-                    eventData.isPrayerBased = true;
-                    eventData.prayerConfig = { prayer, startOffset: startOff, endOffset: endOff };
-                }
+            const startType = _getPrayerAnchorType('start');
+            const endType   = _getPrayerAnchorType('end');
+
+            // Resolve start
+            let startMinutes = null;
+            let startAnchor = {};
+            if (startType === 'prayer') {
+                const startPrayer = document.getElementById('prayerStartSelect')?.value || 'Fajr';
+                const startOff = (v => isNaN(v) ? 0 : v)(parseInt(document.getElementById('prayerStartOffset')?.value));
+                const startTime = state.prayerTimesForDate?.[startPrayer];
+                if (startTime) startMinutes = getPrayerTimeInMinutes(startTime) + startOff;
+                startAnchor = { type: 'prayer', prayer: startPrayer, offset: startOff };
+            } else {
+                const val = document.getElementById('prayerStartFixedTime')?.value || '09:00';
+                const [h, m] = val.split(':').map(Number);
+                startMinutes = h * 60 + m;
+                startAnchor = { type: 'time', fixedTime: val };
+            }
+
+            // Resolve end
+            let endMinutes = null;
+            let endAnchor = {};
+            if (endType === 'prayer') {
+                const endPrayer = document.getElementById('prayerEndSelect')?.value || 'Fajr';
+                const endOff = (v => isNaN(v) ? 0 : v)(parseInt(document.getElementById('prayerEndOffset')?.value));
+                const endTime = state.prayerTimesForDate?.[endPrayer];
+                if (endTime) endMinutes = getPrayerTimeInMinutes(endTime) + endOff;
+                endAnchor = { type: 'prayer', prayer: endPrayer, offset: endOff };
+            } else {
+                const val = document.getElementById('prayerEndFixedTime')?.value || '10:00';
+                const [h, m] = val.split(':').map(Number);
+                endMinutes = h * 60 + m;
+                endAnchor = { type: 'time', fixedTime: val };
+            }
+
+            if (startMinutes !== null && endMinutes !== null) {
+                eventData.startTime = minutesToTimeString(startMinutes);
+                eventData.endTime   = minutesToTimeString(endMinutes);
+                eventData.isPrayerBased = true;
+                // Store in new unified format — startPrayer/endPrayer for backwards compat
+                eventData.prayerConfig = {
+                    startType: startAnchor.type,
+                    startPrayer: startAnchor.prayer || null,
+                    startOffset: startAnchor.offset ?? 0,
+                    startFixedTime: startAnchor.fixedTime || null,
+                    endType: endAnchor.type,
+                    endPrayer: endAnchor.prayer || null,
+                    endOffset: endAnchor.offset ?? 0,
+                    endFixedTime: endAnchor.fixedTime || null,
+                };
             }
             if (!eventData.startTime) {
                 eventData.startTime = document.getElementById('eventStartTime')?.value || '09:00';
@@ -2883,16 +3238,48 @@ function getEventsForDate(dateStr) {
 // Cache keys are like: "2025-03-15_lat_lng_mMethod" (exact date) or "2025-03_city_..." (month)
 function resolvePrayerTimesSync(ev, dateStr) {
     if (!ev.isPrayerBased || !ev.prayerConfig) return ev;
-    const { prayer, startOffset, endOffset } = ev.prayerConfig;
+    const cfg = ev.prayerConfig;
     const cacheKeys = Object.keys(state.prayerTimesCache);
-    // Prefer exact date key, then fall back to any key starting with dateStr
     const exactKey = cacheKeys.find(k => k.startsWith(dateStr + '_'));
     const fallbackKey = exactKey || cacheKeys.find(k => k.startsWith(dateStr.substring(0, 7)));
     const timings = fallbackKey ? state.prayerTimesCache[fallbackKey] : null;
-    if (timings && timings[prayer]) {
-        const base = getPrayerTimeInMinutes(timings[prayer]);
+    if (!timings) return ev;
+
+    // New format: supports mixed prayer/time anchors
+    if (cfg.startPrayer !== undefined || cfg.startType !== undefined || cfg.startFixedTime !== undefined) {
+        let startMinutes = null, endMinutes = null;
+
+        // Resolve start
+        if ((cfg.startType || 'prayer') === 'time' && cfg.startFixedTime) {
+            const [h, m] = cfg.startFixedTime.split(':').map(Number);
+            startMinutes = h * 60 + m;
+        } else {
+            const sp = cfg.startPrayer || cfg.prayer || 'Fajr';
+            if (timings[sp]) startMinutes = getPrayerTimeInMinutes(timings[sp]) + (cfg.startOffset || 0);
+        }
+
+        // Resolve end
+        if ((cfg.endType || 'prayer') === 'time' && cfg.endFixedTime) {
+            const [h, m] = cfg.endFixedTime.split(':').map(Number);
+            endMinutes = h * 60 + m;
+        } else {
+            const ep = cfg.endPrayer || cfg.prayer || 'Fajr';
+            if (timings[ep]) endMinutes = getPrayerTimeInMinutes(timings[ep]) + (cfg.endOffset || 0);
+        }
+
+        if (startMinutes !== null && endMinutes !== null) {
+            return { ...ev,
+                startTime: minutesToTimeString(startMinutes),
+                endTime:   minutesToTimeString(endMinutes) };
+        }
+    }
+    // Legacy format: single prayer field
+    if (cfg.prayer && timings[cfg.prayer]) {
+        const base = getPrayerTimeInMinutes(timings[cfg.prayer]);
         if (base !== null) {
-            return { ...ev, startTime: minutesToTimeString(base + (startOffset || 0)), endTime: minutesToTimeString(base + (endOffset || 0)) };
+            return { ...ev,
+                startTime: minutesToTimeString(base + (cfg.startOffset || 0)),
+                endTime:   minutesToTimeString(base + (cfg.endOffset   || 0)) };
         }
     }
     return ev;
@@ -3336,7 +3723,7 @@ function createEventElement(event, layout = {col:0, total:1}) {
     el.draggable = true;
 
     const prayerIndicator = event.isPrayerBased ? `
-        <div class="absolute top-1 right-1 opacity-75" title="Based on ${event.prayerConfig.prayer}">
+        <div class="absolute top-1 right-1 opacity-75" title="${(() => { const cfg = event.prayerConfig; if (!cfg) return 'prayer'; const s = cfg.startType === 'time' ? cfg.startFixedTime : (cfg.startPrayer || cfg.prayer || 'prayer'); const e = cfg.endType === 'time' ? cfg.endFixedTime : (cfg.endPrayer || cfg.prayer || 'prayer'); return s + ' → ' + e; })()} ">
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
         </div>` : '';
 
@@ -3468,7 +3855,7 @@ function renderMobileWeekHeader(startDay) {
         const isHijriMode = state.calendarMode === 'hijri';
         const primaryNum = isHijriMode ? hijri.day : date.getDate();
         const secondaryLabel = isHijriMode
-            ? date.getDate() + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][date.getMonth()]
+            ? date.getDate() + ' ' + t('monthNamesShort')[date.getMonth()]
             : hijri.day + ' ' + tHijri(islamicMonths.indexOf(hijri.month) + 1).substring(0, 4);
 
         headerCell.innerHTML = `
@@ -3576,7 +3963,7 @@ function renderWeekHeader(startOfWeek) {
         const isHijriMode = state.calendarMode === 'hijri';
         const primaryNum = isHijriMode ? hijri.day : date.getDate();
         const secondaryLabel = isHijriMode
-            ? date.getDate() + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][date.getMonth()]
+            ? date.getDate() + ' ' + t('monthNamesShort')[date.getMonth()]
             : hijri.day + ' ' + tHijri(islamicMonths.indexOf(hijri.month) + 1).substring(0, 4);
 
         headerCell.innerHTML = `
@@ -3768,6 +4155,19 @@ function handleDrop(e, dateStr, hour) {
     }
 }
 
+function updateDayTimeIndicator() {
+    const grid = document.getElementById('dayHourGrid');
+    if (!grid) return;
+    grid.querySelectorAll('.current-time-line').forEach(el => el.remove());
+    const now = new Date();
+    const minutes = now.getHours() * 60 + now.getMinutes();
+    const topPx = (minutes / 60) * 60;
+    const line = document.createElement('div');
+    line.className = 'current-time-line';
+    line.style.cssText = `top:${topPx}px; position:absolute; left:0; right:0; z-index:10;`;
+    grid.appendChild(line);
+}
+
 function updateTimeIndicator() {
     if (state.currentView !== 'week') return;
     const weekBody = document.getElementById('weekBody');
@@ -3863,8 +4263,8 @@ function renderMonthView() {
         });
 
         div.innerHTML = `
-            <div class="flex justify-between items-start mb-1">
-                <span class="font-semibold ${isToday ? 'text-blue-600 dark:text-blue-400' : ''}">${day}</span>
+            <div class="flex items-start justify-between mb-1">
+                <span class="text-base font-semibold ${isToday ? 'w-7 h-7 flex items-center justify-center rounded-full bg-blue-600 text-white text-sm' : 'theme-text'}">${day}</span>
                 <div class="flex flex-col items-end gap-0.5">
                     <span class="text-[10px] theme-text-secondary">${hijri.day} ${tHijri(islamicMonths.indexOf(hijri.month)+1).substring(0,4)}</span>
                     ${getDayIndicator(dateStr)}
@@ -3872,7 +4272,7 @@ function renderMonthView() {
             </div>
             <div class="space-y-0.5">
                 ${eventsHtml}
-                ${dayEvents.length > 3 ? `<div class="text-xs theme-text-secondary">+${dayEvents.length - 3} more</div>` : ''}
+                ${dayEvents.length > 3 ? `<div class="text-xs theme-text-secondary">+${dayEvents.length - 3} ${state.language === 'ar' ? 'أخرى' : 'more'}</div>` : ''}
             </div>
         `;
         grid.appendChild(div);
@@ -4059,6 +4459,11 @@ function renderDayTimeline() {
         container.appendChild(allDayContainer);
     }
 
+    // Wrap hour grid + events in a single relative container so absolute positioning works correctly
+    const hourGrid = document.createElement('div');
+    hourGrid.id = 'dayHourGrid';
+    hourGrid.style.cssText = 'position:relative; flex:1;';
+
     for (let hour = 0; hour < 24; hour++) {
         const hourRow = document.createElement('div');
         hourRow.className = 'hour-row border-b theme-border relative';
@@ -4069,12 +4474,20 @@ function renderDayTimeline() {
         timeLabel.textContent = formatHour(hour);
         hourRow.appendChild(timeLabel);
         hourRow.addEventListener('click', () => openModal(null, dateStr, `${String(hour).padStart(2, '0')}:00`));
-        container.appendChild(hourRow);
+        hourGrid.appendChild(hourRow);
     }
+
     const timedDayEvts = dayEvents.filter(e => !e.isAllDay);
     const dayEvtLayout = computeEventLayout(timedDayEvts);
-    timedDayEvts.forEach(event => container.appendChild(createEventElement(event, dayEvtLayout.get(event.id))));
-    if (state.showPrayerTimesInView) renderPrayerTimesInColumn(container, dateStr);
+    timedDayEvts.forEach(event => hourGrid.appendChild(createEventElement(event, dayEvtLayout.get(event.id))));
+    if (state.showPrayerTimesInView) renderPrayerTimesInColumn(hourGrid, dateStr);
+
+    container.appendChild(hourGrid);
+
+    // Current time line (only if viewing today)
+    if (dateStr === todayLocalString()) {
+        updateDayTimeIndicator();
+    }
 }
 
 function openDaySidebar(dateStr) {
@@ -4221,18 +4634,26 @@ function renderSidebarContent() {
         </div>
 
         <!-- Footer -->
-        <div class="shrink-0 px-4 py-3 border-t theme-border theme-bg-panel grid grid-cols-3 gap-2 text-center" style="${state.sidebarView === 'journal' || state.sidebarView === 'score' ? 'display:none' : ''}">
+        <div class="shrink-0 px-4 py-2 border-t theme-border theme-bg-panel grid grid-cols-5 gap-1 text-center" style="${state.sidebarView === 'journal' || state.sidebarView === 'score' ? 'display:none' : ''}">
             <div>
-                <div class="text-xs theme-text-secondary">${t('today')}</div>
-                <div class="font-bold text-blue-600 dark:text-blue-400">${calcDayTotal(dateStr)}</div>
+                <div class="text-[10px] theme-text-secondary">${t('today')}</div>
+                <div class="font-bold text-blue-600 dark:text-blue-400 text-sm">${fmtScore(calcDayTotal(dateStr))}</div>
             </div>
             <div>
-                <div class="text-xs theme-text-secondary">${t('week')}</div>
-                <div class="font-bold">${getWeekTotal(dateStr)}</div>
+                <div class="text-[10px] theme-text-secondary">${t('week')}</div>
+                <div class="font-bold text-sm">${fmtScore(getWeekTotal(dateStr))}</div>
             </div>
             <div>
-                <div class="text-xs theme-text-secondary">${t('allTime')}</div>
-                <div class="font-bold">${calcAllTimeTotal()}</div>
+                <div class="text-[10px] theme-text-secondary">${t('month')}</div>
+                <div class="font-bold text-sm">${fmtScore(calcMonthTotal(dateStr))}</div>
+            </div>
+            <div>
+                <div class="text-[10px] theme-text-secondary">${t('year')}</div>
+                <div class="font-bold text-sm">${fmtScore(calcYearTotal())}</div>
+            </div>
+            <div>
+                <div class="text-[10px] theme-text-secondary">${t('allTime')}</div>
+                <div class="font-bold text-sm">${fmtScore(calcAllTimeTotal())}</div>
             </div>
         </div>
 
@@ -4865,8 +5286,19 @@ function getWeekTotal(dateStr) {
 }
 
 function showJournalEditor() {
+    switchView('day');
+    const today = todayLocalString();
+    state.currentDate = new Date(today + 'T12:00:00');
     state.sidebarView = 'journal';
-    renderSidebarContent();
+    openDaySidebar(today);
+}
+
+function openScoreView() {
+    switchView('day');
+    const today = todayLocalString();
+    state.currentDate = new Date(today + 'T12:00:00');
+    state.sidebarView = 'score';
+    openDaySidebar(today);
 }
 
 function showScoreEditor() {
@@ -5124,8 +5556,8 @@ function getDayScoreColor(score) {
 
 function getDayIndicator(dateStr) {
     const j = state.journalEntries[dateStr];
-    if (!j) return '<span class="w-2 h-2 rounded-full bg-red-400 inline-block"></span>';
-    if (j.score) return `<span class="text-[10px] font-bold text-blue-600 dark:text-blue-400 leading-none">${j.score}pts</span>`;
+    if (!j) return '';
+    if (j.score) return `<span class="text-[10px] font-bold text-blue-600 dark:text-blue-400 leading-none">${j.score}${t('pts')}</span>`;
     return '<span class="w-2 h-2 rounded-full bg-green-400 inline-block"></span>';
 }
 
@@ -5513,6 +5945,11 @@ function openAccountSettings(e) {
                 <svg class="w-4 h-4 flex-shrink-0 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
                 <span>${t('syncData')}</span>
                 <span class="ml-auto flex items-center gap-1.5"><span id="syncStatusDot" class="w-2 h-2 rounded-full ${isSyncEnabled()?'bg-green-500':'bg-gray-400'}"></span><span id="syncStatusLabel" class="text-xs theme-text-secondary">${isSyncEnabled()?(state.language==='ar'?'متصل':'Connected'):(state.language==='ar'?'غير متصل':'Not connected')}</span></span>
+            </button>
+            <button onclick="openStandaloneAlarmsPanel(); closeAccountSettings();" class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg hover:theme-bg-tertiary transition-colors text-left text-sm">
+                <svg class="w-4 h-4 flex-shrink-0 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>${state.language==='ar' ? 'المنبّهات' : 'Alarms'}</span>
+                <span class="ml-auto text-xs theme-text-secondary">${getStandaloneAlarms().length} alarm${getStandaloneAlarms().length !== 1 ? 's' : ''}</span>
             </button>
             <button onclick="toggleLanguage()" class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg hover:theme-bg-tertiary transition-colors text-left text-sm">
                 <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>
@@ -6092,12 +6529,14 @@ function openVariableSettings() {
             </div>
             <div class="p-6 space-y-4">
                 <p class="text-sm theme-text-secondary">${state.language==='ar' ? 'أنشئ متغيرات لاستخدامها في تعبيرات النقاط مثل:' : 'Create variables to use in score expressions like'} <code class="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded text-xs">work*2 + gym</code></p>
-                <div class="flex space-x-2">
-                    <input type="text" id="newVarName" placeholder="${state.language==='ar' ? 'الاسم (مثال: عمل)' : 'Name (e.g. work)'}"
-                        class="flex-1 theme-bg-tertiary border theme-border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 theme-text">
-                    <input type="number" id="newVarValue" placeholder="${state.language==='ar' ? 'القيمة' : 'Value'}" step="any"
-                        class="w-24 theme-bg-tertiary border theme-border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 theme-text">
-                    <button onclick="addVariable()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors">${t('add')}</button>
+                <div class="space-y-2">
+                    <div class="flex space-x-2">
+                        <input type="text" id="newVarName" placeholder="${state.language==='ar' ? 'الاسم (مثال: عمل)' : 'Name (e.g. work)'}"
+                            class="flex-1 theme-bg-tertiary border theme-border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 theme-text">
+                        <input type="number" id="newVarValue" placeholder="${state.language==='ar' ? 'القيمة' : 'Value'}" step="any"
+                            class="w-24 theme-bg-tertiary border theme-border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 theme-text">
+                    </div>
+                    <button onclick="addVariable()" class="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors">${t('add')}</button>
                 </div>
                 <div id="variableListContainer" class="space-y-2 max-h-60 overflow-y-auto"></div>
                 <div class="flex justify-end pt-4 border-t theme-border">
@@ -6234,13 +6673,10 @@ function setupEventListeners() {
         });
     }
 
-    const prayerSelect = document.getElementById('prayerTimeSelect');
-    if (prayerSelect) {
-        prayerSelect.addEventListener('change', (e) => {
-            state.selectedPrayer = e.target.value;
-            updatePrayerTimeDisplay();
-        });
-    }
+    ['prayerStartSelect','prayerEndSelect'].forEach(id => {
+        const sel = document.getElementById(id);
+        if (sel) sel.addEventListener('change', updatePrayerTimeDisplay);
+    });
 
     const startOffset = document.getElementById('prayerStartOffset');
     const endOffset = document.getElementById('prayerEndOffset');
@@ -6343,7 +6779,15 @@ function setupEventListeners() {
 
 const NOTIF_STORAGE_KEY = 'uwu_scheduled_notifs';
 let _notifCheckInterval = null;
-const _firedNotifs = new Set(); // prevent double-firing in same session
+const _firedNotifs = new Set();
+
+// ─── Detect environment ───────────────────────────────────────────────
+function _isCapacitor() {
+    return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+}
+function _getLocalNotif() {
+    return window.Capacitor?.Plugins?.LocalNotifications || null;
+}
 
 function _getScheduled() {
     try { return JSON.parse(localStorage.getItem(NOTIF_STORAGE_KEY) || '[]'); } catch { return []; }
@@ -6364,9 +6808,59 @@ async function _postToSW(msg) {
     } catch(e) { console.warn('[Notif] SW post failed:', e); }
 }
 
-// ─── Page-side tick — runs every 30s while app is open ───────────────
+// ─── Native (Capacitor) notification helpers ─────────────────────────
+
+async function _nativeSchedule(entry) {
+    const LN = _getLocalNotif();
+    if (!LN) return false;
+    try {
+        // Capacitor requires a small positive integer ID
+        const nativeId = Math.abs(entry.id) % 2147483647 || 1;
+        await LN.schedule({
+            notifications: [{
+                id:    nativeId,
+                title: entry.title,
+                body:  entry.body,
+                schedule: { at: new Date(entry.timestamp) },
+                sound: 'default',
+                extra: { eventId: entry.id },
+            }]
+        });
+        return true;
+    } catch(e) { console.warn('[Notif] Native schedule failed:', e); return false; }
+}
+
+async function _nativeCancel(eventId) {
+    const LN = _getLocalNotif();
+    if (!LN) return;
+    try {
+        const nativeId = Math.abs(eventId) % 2147483647 || 1;
+        await LN.cancel({ notifications: [{ id: nativeId }] });
+    } catch(e) { console.warn('[Notif] Native cancel failed:', e); }
+}
+
+async function _nativeRequestPermission() {
+    const LN = _getLocalNotif();
+    if (!LN) return false;
+    try {
+        const result = await LN.requestPermissions();
+        return result.display === 'granted';
+    } catch(e) { return false; }
+}
+
+async function _nativeCheckPermission() {
+    const LN = _getLocalNotif();
+    if (!LN) return false;
+    try {
+        const result = await LN.checkPermissions();
+        return result.display === 'granted';
+    } catch(e) { return false; }
+}
+
+// ─── Page-side tick (web only) — runs every 30s ───────────────────────
 
 async function _notifTick() {
+    if (_isCapacitor()) return; // native handles its own scheduling
     if (Notification.permission !== 'granted') return;
     const now = Date.now();
     const scheduled = _getScheduled();
@@ -6376,22 +6870,17 @@ async function _notifTick() {
         if (entry.timestamp <= now + 500 && !_firedNotifs.has(entry.id)) {
             _firedNotifs.add(entry.id);
             changed = true;
-            // Use SW showNotification — works on all browsers including Chrome/Windows
             try {
                 const reg = await navigator.serviceWorker.ready;
                 await reg.showNotification(entry.title, {
-                    body:     entry.body,
-                    icon:     '/UWU/icon.png',
-                    tag:      String(entry.id),
-                    renotify: false,
+                    body: entry.body, icon: '/UWU/icon.png',
+                    tag: String(entry.id), renotify: false,
                 });
             } catch(e) {
-                // Fallback to Notification API if SW unavailable
-                try { new Notification(entry.title, { body: entry.body, icon: '/UWU/icon.png' }); } catch(_) {}
+                try { new Notification(entry.title, { body: entry.body }); } catch(_) {}
             }
         }
     }
-
     if (changed) {
         const remaining = scheduled.filter(e => e.timestamp > now - 60000 && !_firedNotifs.has(e.id));
         _saveScheduled(remaining);
@@ -6433,27 +6922,27 @@ function requestNotificationPermission() {
     };
     document.getElementById('notifPermAllowBtn').onclick = async () => {
         banner.remove();
-        const result = await Notification.requestPermission();
-        if (result === 'granted') {
-            // Re-register all pending notifications now that we have permission
-            await _rescheduleAll();
+        let granted = false;
+        if (_isCapacitor()) {
+            granted = await _nativeRequestPermission();
+        } else {
+            granted = (await Notification.requestPermission()) === 'granted';
         }
+        if (granted) await _rescheduleAll();
     };
 }
 
 // ─── Schedule a notification for a single event ───────────────────────
 
 async function scheduleEventNotification(ev) {
-    // Cancel any previous notification for this event first
     await cancelEventNotification(ev.id);
 
     if (ev.reminderMinutes == null || ev.isAllDay) return;
-    if (!('Notification' in window)) return;
+    const isAlarmType = ev.reminderType === 'alarm';
 
-    // Calculate fire timestamp
     const eventDateTime = new Date(`${ev.date}T${ev.startTime || '09:00'}:00`);
     const fireAt = eventDateTime.getTime() - (ev.reminderMinutes * 60 * 1000);
-    if (fireAt <= Date.now()) return;   // already past
+    if (fireAt <= Date.now()) return;
 
     const body = ev.reminderMinutes === 0
         ? (state.language === 'ar' ? 'يبدأ الآن' : 'Starting now')
@@ -6463,48 +6952,80 @@ async function scheduleEventNotification(ev) {
 
     const entry = { id: ev.id, title: ev.title, body, timestamp: fireAt };
 
-    // Persist to localStorage so we can re-schedule after page reload
     const scheduled = _getScheduled().filter(n => n.id !== ev.id);
     scheduled.push(entry);
     _saveScheduled(scheduled);
 
-    // Request permission if not yet decided
-    if (Notification.permission === 'default') {
-        const result = await Notification.requestPermission();
-        if (result !== 'granted') return;
-    }
-    if (Notification.permission !== 'granted') return;
+    if (_isCapacitor()) {
+        // ── Native path ──
+        let granted = await _nativeCheckPermission();
+        if (!granted) granted = await _nativeRequestPermission();
+        if (!granted) return;
 
-    // Layer 1: page-side precise timer (most reliable)
-    const delay = fireAt - Date.now();
-    if (delay > 0) {
-        setTimeout(async () => {
-            if (_firedNotifs.has(ev.id)) return;
-            _firedNotifs.add(ev.id);
+        const AP = _getAlarmPlugin();
+        if (AP && isAlarmType) {
+            // Full-screen alarm with per-event settings
             try {
-                const reg = await navigator.serviceWorker.ready;
-                await reg.showNotification(ev.title, {
-                    body:     entry.body,
-                    icon:     '/UWU/icon.png',
-                    tag:      String(ev.id),
-                    renotify: false,
+                await AP.scheduleAlarm({
+                    eventId:       ev.id,
+                    title:         ev.title,
+                    time:          ev.startTime || '',
+                    timestamp:     fireAt,
+                    equationTypes: JSON.stringify(ev.alarmEquationTypes || []),
+                    eqCount:       ev.alarmEqCount     || 2,
+                    snoozeMins:    ev.alarmSnoozeMins  || 5,
+                    ringtoneUri:   ev.alarmRingtoneUri || '',
+                    gentleWake:    ev.alarmGentleWake  !== false,
+                    wakeUpCheck:   !!ev.alarmWakeUpCheck,
                 });
             } catch(e) {
-                try { new Notification(ev.title, { body: entry.body, icon: '/UWU/icon.png' }); } catch(_) {}
+                console.warn('[Alarm] scheduleAlarm failed, falling back to notification:', e);
+                await _nativeSchedule(entry);
             }
-            const remaining = _getScheduled().filter(e => e.id !== ev.id);
-            _saveScheduled(remaining);
-        }, delay);
-    }
+        } else {
+            // Simple notification (no alarm) or AlarmPlugin unavailable
+            await _nativeSchedule(entry);
+        }
+    } else {
+        // ── Web path (browser) ──
+        if (Notification.permission === 'default') {
+            const result = await Notification.requestPermission();
+            if (result !== 'granted') return;
+        }
+        if (Notification.permission !== 'granted') return;
 
-    // Layer 2: SW backup (fires if app is closed before timer runs)
-    await _postToSW({ type: 'SCHEDULE', ...entry });
+        const delay = fireAt - Date.now();
+        if (delay > 0) {
+            setTimeout(async () => {
+                if (_firedNotifs.has(ev.id)) return;
+                _firedNotifs.add(ev.id);
+                try {
+                    const reg = await navigator.serviceWorker.ready;
+                    await reg.showNotification(ev.title, {
+                        body: entry.body, icon: '/UWU/icon.png',
+                        tag: String(ev.id), renotify: false,
+                    });
+                } catch(e) {
+                    try { new Notification(ev.title, { body: entry.body }); } catch(_) {}
+                }
+                const remaining = _getScheduled().filter(e => e.id !== ev.id);
+                _saveScheduled(remaining);
+            }, delay);
+        }
+        await _postToSW({ type: 'SCHEDULE', ...entry });
+    }
 }
 
 async function cancelEventNotification(eventId) {
     const scheduled = _getScheduled().filter(n => n.id !== eventId);
     _saveScheduled(scheduled);
-    await _postToSW({ type: 'CANCEL', id: eventId });
+    if (_isCapacitor()) {
+        const AP = _getAlarmPlugin();
+        if (AP) await AP.cancelAlarm({ eventId });
+        await _nativeCancel(eventId);
+    } else {
+        await _postToSW({ type: 'CANCEL', id: eventId });
+    }
 }
 
 // ─── Re-send all pending notifications to SW (backup layer) ──────────
@@ -6513,30 +7034,57 @@ async function _rescheduleAll() {
     const now = Date.now();
     const scheduled = _getScheduled().filter(n => n.timestamp > now);
     _saveScheduled(scheduled);
-    if (Notification.permission !== 'granted') return;
-    // Post to SW as backup (for when app is closed)
-    for (const entry of scheduled) {
-        await _postToSW({ type: 'SCHEDULE', ...entry });
+    if (_isCapacitor()) {
+        for (const entry of scheduled) await _nativeSchedule(entry);
+    } else {
+        if (Notification.permission !== 'granted') return;
+        for (const entry of scheduled) await _postToSW({ type: 'SCHEDULE', ...entry });
     }
 }
 
 // ─── Init (called on DOMContentLoaded) ───────────────────────────────
 
 function initNotifications() {
-    if (!('Notification' in window)) return;
-
-    // Start page-side tick (every 30s) — primary notification layer
-    if (_notifCheckInterval) clearInterval(_notifCheckInterval);
-    _notifCheckInterval = setInterval(_notifTick, 30_000);
-    // Also run once immediately in case something is due now
-    setTimeout(_notifTick, 1000);
-
-    // Re-send to SW as backup layer
-    if (Notification.permission === 'granted') {
+    if (_isCapacitor()) {
         _rescheduleAll();
+        const skipped = localStorage.getItem('uwu_notif_skipped');
+        if (!skipped) {
+            _nativeCheckPermission().then(granted => {
+                if (!granted) setTimeout(requestNotificationPermission, 4000);
+            });
+        }
+        // Reschedule repeating standalone alarms on app open
+        setTimeout(async () => {
+            const AP = _getAlarmPlugin();
+            if (!AP) return;
+            const alarms = getStandaloneAlarms();
+            for (const alarm of alarms) {
+                if (alarm.enabled && alarm.repeat && alarm.repeat !== 'none') {
+                    await scheduleStandaloneAlarm(alarm);
+                }
+            }
+        }, 2000);
+        // Request "Draw over other apps" permission for full-screen alarm
+        const AP = _getAlarmPlugin();
+        if (AP) {
+            AP.checkOverlayPermission().then(result => {
+                if (!result.granted && !localStorage.getItem('uwu_overlay_skipped')) {
+                    setTimeout(requestOverlayPermission, 5000);
+                }
+            }).catch(() => {});
+        }
+        return;
     }
 
-    // Show permission prompt once
+    if (!('Notification' in window)) return;
+
+    // Web: page-side tick as primary layer
+    if (_notifCheckInterval) clearInterval(_notifCheckInterval);
+    _notifCheckInterval = setInterval(_notifTick, 30_000);
+    setTimeout(_notifTick, 1000);
+
+    if (Notification.permission === 'granted') _rescheduleAll();
+
     const skipped = localStorage.getItem('uwu_notif_skipped');
     if (Notification.permission === 'default' && !skipped) {
         setTimeout(requestNotificationPermission, 4000);
@@ -6577,14 +7125,26 @@ async function notifDebug() {
     // Test if Notification constructor works right now
     if (Notification.permission === 'granted') {
         lines.push('--- Firing a TEST notification now ---');
-        try {
-            const reg = await navigator.serviceWorker.ready;
-            await reg.showNotification('Test ✓', { body: 'Notifications are working!', icon: '/UWU/icon.png' });
-            lines.push('Test notification fired OK (via SW)');
-        } catch(e) {
-            lines.push('SW showNotification failed: ' + e.message);
-            try { new Notification('Test ✓', { body: 'Fallback test', icon: '/UWU/icon.png' }); lines.push('Fallback Notification() OK'); }
-            catch(e2) { lines.push('Both methods FAILED: ' + e2.message); }
+        lines.push('Running as Capacitor: ' + _isCapacitor());
+        if (_isCapacitor()) {
+            try {
+                const LN = _getLocalNotif();
+                await LN.schedule({ notifications: [{
+                    id: 999999, title: 'Test ✓', body: 'Native notifications working!',
+                    schedule: { at: new Date(Date.now() + 3000) },
+                }]});
+                lines.push('Native notification scheduled (fires in 3s)');
+            } catch(e) { lines.push('Native notification FAILED: ' + e.message); }
+        } else {
+            try {
+                const reg = await navigator.serviceWorker.ready;
+                await reg.showNotification('Test ✓', { body: 'Notifications are working!', icon: '/UWU/icon.png' });
+                lines.push('Test notification fired OK (via SW)');
+            } catch(e) {
+                lines.push('SW showNotification failed: ' + e.message);
+                try { new Notification('Test ✓', { body: 'Fallback test' }); lines.push('Fallback OK'); }
+                catch(e2) { lines.push('FAILED: ' + e2.message); }
+            }
         }
     }
 
@@ -6594,6 +7154,1211 @@ async function notifDebug() {
     return out;
 }
 window.notifDebug = notifDebug;
+
+
+
+
+// ─── Per-event reminder UI helpers ───────────────────────────────────
+
+function toggleAlarmOptions() {
+    const reminderVal = document.getElementById('eventReminder')?.value;
+    const typeRow     = document.getElementById('reminderTypeRow');
+    const alarmRow    = document.getElementById('alarmOptionsRow');
+    const hasReminder = reminderVal && reminderVal !== 'none';
+    if (typeRow) typeRow.classList.toggle('hidden', !hasReminder);
+    if (!hasReminder && alarmRow) alarmRow.classList.add('hidden');
+}
+
+function setReminderType(type) {
+    const notifBtn = document.getElementById('typeNotifBtn');
+    const alarmBtn = document.getElementById('typeAlarmBtn');
+    const alarmRow = document.getElementById('alarmOptionsRow');
+    if (!notifBtn || !alarmBtn) return;
+    if (type === 'alarm') {
+        alarmBtn.classList.add('bg-orange-500', 'text-white');
+        alarmBtn.classList.remove('theme-text-secondary');
+        notifBtn.classList.remove('bg-blue-500', 'text-white');
+        notifBtn.classList.add('theme-text-secondary');
+        if (alarmRow) alarmRow.classList.remove('hidden');
+    } else {
+        notifBtn.classList.add('bg-blue-500', 'text-white');
+        notifBtn.classList.remove('theme-text-secondary');
+        alarmBtn.classList.remove('bg-orange-500', 'text-white');
+        alarmBtn.classList.add('theme-text-secondary');
+        if (alarmRow) alarmRow.classList.add('hidden');
+    }
+}
+
+// ── Event alarm popup (replaces inline alarmOptionsRow) ───────────────────
+
+function openEventAlarmPopup() {
+    const existing = document.getElementById('eventAlarmPopup');
+    if (existing) { existing.remove(); return; }
+
+    const ringtoneUri  = localStorage.getItem('_eventAlarmRingtoneUri_tmp')  || '';
+    const ringtoneName = localStorage.getItem('_eventAlarmRingtoneName_tmp') || 'Default alarm sound';
+    const snooze       = parseInt(localStorage.getItem('_eventAlarmSnooze_tmp')    || '5');
+    const snoozeLimit  = parseInt(localStorage.getItem('_eventAlarmSnoozeLimit_tmp') ?? '0');
+    const eqCount      = localStorage.getItem('_eventAlarmEqCount_tmp')             || '2';
+    const gentleWake   = localStorage.getItem('_eventAlarmGentleWake_tmp')  !== 'false';
+    const wakeUpCheck  = localStorage.getItem('_eventAlarmWakeUpCheck_tmp') === 'true';
+    const safetyStop   = localStorage.getItem('_eventAlarmSafetyStop_tmp')  === 'true';
+
+    const snoozeLabel      = snooze === 0 ? t('alarmSnoozeOff') : `${snooze} ${t('alarmSnoozeMin')}`;
+    const snoozeLimitLabel = _snoozeLimitLabel(snoozeLimit);
+    const eqTypesSummary   = _eqTypesSummary('_eventAlarmEquationTypes_tmp', eqCount);
+    const eqCountLabel     = `${eqCount} ${parseInt(eqCount) !== 1 ? t('alarmEqCountPl') : t('alarmEqCount')}`;
+
+    const sheet = document.createElement('div');
+    sheet.id = 'eventAlarmPopup';
+    sheet.className = 'fixed inset-0 modal-backdrop flex items-end justify-center z-[250]';
+    sheet.innerHTML = `
+        <div class="theme-bg border theme-border rounded-t-2xl w-full max-w-sm">
+            <div class="flex items-center justify-between px-5 py-4 border-b theme-border">
+                <h3 class="font-semibold text-sm theme-text">${state.language === 'ar' ? 'إعدادات المنبّه' : 'Alarm Settings'}</h3>
+                <button onclick="document.getElementById('eventAlarmPopup').remove()" class="theme-text-secondary hover:theme-text">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <!-- Ringtone -->
+            <button onclick="pickEventAlarmRingtone()" class="w-full flex items-center px-5 py-3.5 border-b theme-border gap-3">
+                <span class="text-sm theme-text-secondary w-28 shrink-0 text-left">${t('alarmSound')}</span>
+                <span id="evAlarmRingtoneName" class="flex-1 text-sm theme-text text-right truncate">${ringtoneName}</span>
+                <svg class="w-4 h-4 theme-text-secondary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+
+            <!-- Snooze -->
+            <button onclick="_evAlarmSnoozePopup()" class="w-full flex items-center px-5 py-3.5 border-b theme-border gap-3">
+                <span class="text-sm theme-text-secondary w-28 shrink-0 text-left">${t('alarmSnooze')}</span>
+                <span id="evAlarmSnoozeLabel" class="flex-1 text-sm theme-text text-right">${snoozeLabel}</span>
+                <svg class="w-4 h-4 theme-text-secondary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+
+            <!-- Snooze limit -->
+            <button onclick="_evAlarmSnoozeLimitPopup()" class="w-full flex items-center px-5 py-3.5 border-b theme-border gap-3">
+                <span class="text-sm theme-text-secondary w-28 shrink-0 text-left">${t('alarmSnoozeLimit')}</span>
+                <span id="evAlarmSnoozeLimitLabel" class="flex-1 text-sm theme-text text-right">${snoozeLimitLabel}</span>
+                <svg class="w-4 h-4 theme-text-secondary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+
+            <!-- Equation Types -->
+            <button onclick="_openEquationTypePicker('_eventAlarmEquationTypes_tmp','_eventAlarmEqCount_tmp','evAlarmEqLabel')" class="w-full flex items-center px-5 py-3.5 border-b theme-border gap-3">
+                <span class="text-sm theme-text-secondary w-28 shrink-0 text-left">${t('alarmEqTypes')}</span>
+                <span id="evAlarmEqLabel" class="flex-1 text-sm theme-text text-right">${eqTypesSummary}</span>
+                <svg class="w-4 h-4 theme-text-secondary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+
+            <!-- Equation Count -->
+            <button onclick="_evAlarmCountPopup()" class="w-full flex items-center px-5 py-3.5 border-b theme-border gap-3">
+                <span class="text-sm theme-text-secondary w-28 shrink-0 text-left">${t('alarmCount')}</span>
+                <span id="evAlarmCountLabel" class="flex-1 text-sm theme-text text-right">${eqCountLabel}</span>
+                <svg class="w-4 h-4 theme-text-secondary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+
+            <!-- Gentle wake -->
+            <div class="flex items-center px-5 py-3.5 border-b theme-border gap-3">
+                <span class="text-sm theme-text-secondary w-28 shrink-0">${t('alarmGentleWake')}</span>
+                <span class="flex-1 text-xs theme-text-secondary">${t('alarmGentleDesc')}</span>
+                <button id="evGentleWakeBtn" onclick="_toggleEvAlarmBool('evGentleWakeBtn','_eventAlarmGentleWake_tmp')"
+                    class="relative w-10 h-6 rounded-full transition-colors shrink-0 ${gentleWake ? 'bg-orange-500' : 'bg-gray-400 dark:bg-gray-600'}">
+                    <span class="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all duration-200 ${gentleWake ? 'right-0.5' : 'left-0.5'}"></span>
+                </button>
+            </div>
+
+            <!-- Wake up check -->
+            <div class="flex items-center px-5 py-3.5 border-b theme-border gap-3">
+                <span class="text-sm theme-text-secondary w-28 shrink-0">${t('alarmWakeCheck')}</span>
+                <span class="flex-1 text-xs theme-text-secondary">${t('alarmWakeDesc')}</span>
+                <button id="evWakeUpCheckBtn" onclick="_toggleEvAlarmBool('evWakeUpCheckBtn','_eventAlarmWakeUpCheck_tmp')"
+                    class="relative w-10 h-6 rounded-full transition-colors shrink-0 ${wakeUpCheck ? 'bg-orange-500' : 'bg-gray-400 dark:bg-gray-600'}">
+                    <span class="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all duration-200 ${wakeUpCheck ? 'right-0.5' : 'left-0.5'}"></span>
+                </button>
+            </div>
+
+            <!-- Safety stop -->
+            <div class="flex items-center px-5 py-3.5 border-b theme-border gap-3">
+                <span class="text-sm theme-text-secondary w-28 shrink-0">${t('alarmSafetyStop')}</span>
+                <span class="flex-1 text-xs theme-text-secondary">${t('alarmSafetyDesc')}</span>
+                <button id="evSafetyStopBtn" onclick="_toggleEvAlarmBool('evSafetyStopBtn','_eventAlarmSafetyStop_tmp')"
+                    class="relative w-10 h-6 rounded-full transition-colors shrink-0 ${safetyStop ? 'bg-orange-500' : 'bg-gray-400 dark:bg-gray-600'}">
+                    <span class="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all duration-200 ${safetyStop ? 'right-0.5' : 'left-0.5'}"></span>
+                </button>
+            </div>
+
+            <div class="px-5 py-4">
+                <button onclick="document.getElementById('eventAlarmPopup').remove()"
+                    class="w-full py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium transition-colors">${t('save')}</button>
+            </div>
+        </div>`;
+    document.body.appendChild(sheet);
+    sheet.addEventListener('click', e => { if (e.target === sheet) sheet.remove(); });
+}
+
+function _toggleEvAlarmBool(btnId, storageKey) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    const isOn = btn.classList.contains('bg-orange-500');
+    const newVal = !isOn;
+    localStorage.setItem(storageKey, String(newVal));
+    btn.classList.toggle('bg-orange-500', newVal);
+    btn.classList.toggle('bg-gray-400', !newVal);
+    const dot = btn.querySelector('span');
+    if (dot) { dot.classList.toggle('right-0.5', newVal); dot.classList.toggle('left-0.5', !newVal); }
+}
+
+function _evAlarmSnoozePopup() {
+    const current = parseInt(localStorage.getItem('_eventAlarmSnooze_tmp') || '5');
+    const opts = [[0,t('alarmSnoozeOff')],[1,`1 ${t('alarmSnoozeMin')}`],[5,`5 ${t('alarmSnoozeMin')}`],
+                  [10,`10 ${t('alarmSnoozeMin')}`],[15,`15 ${t('alarmSnoozeMin')}`],[30,`30 ${t('alarmSnoozeMin')}`]];
+    _showPickerPopup(t('alarmSnooze'), opts, current, val => {
+        localStorage.setItem('_eventAlarmSnooze_tmp', String(val));
+        const el = document.getElementById('evAlarmSnoozeLabel');
+        if (el) el.textContent = parseInt(val) === 0 ? t('alarmSnoozeOff') : `${val} ${t('alarmSnoozeMin')}`;
+    });
+}
+
+function _evAlarmCountPopup() {
+    const current = parseInt(localStorage.getItem('_eventAlarmEqCount_tmp') || '2');
+    _showPickerPopup(t('alarmCount'),
+        [1,2,3,5,7,10].map(n => [n, `${n} ${n !== 1 ? t('alarmEqCountPl') : t('alarmEqCount')}`]),
+        current, val => {
+            localStorage.setItem('_eventAlarmEqCount_tmp', String(val));
+            const el = document.getElementById('evAlarmCountLabel');
+            if (el) el.textContent = `${val} ${val !== 1 ? t('alarmEqCountPl') : t('alarmEqCount')}`;
+            const el2 = document.getElementById('evAlarmEqLabel');
+            if (el2) el2.textContent = _eqTypesSummary('_eventAlarmEquationTypes_tmp', val);
+        });
+}
+
+async function pickEventAlarmRingtone() {
+    const AP = _getAlarmPlugin();
+    if (!AP) { alert('Ringtone picker only available in the Android app.'); return; }
+    const currentUri = localStorage.getItem('_eventAlarmRingtoneUri_tmp') || '';
+    await AP.pickRingtone({ currentUri });
+    const checkResult = async () => {
+        try {
+            const result = await AP.getRingtoneResult();
+            if (result.ready) {
+                localStorage.setItem('_eventAlarmRingtoneUri_tmp',  result.uri  || '');
+                localStorage.setItem('_eventAlarmRingtoneName_tmp', result.name || 'Default alarm sound');
+                // Update the name label inside the event alarm popup if it's open
+                const nameEl = document.getElementById('evAlarmRingtoneName');
+                if (nameEl) nameEl.textContent = result.name || 'Default alarm sound';
+                document.removeEventListener('visibilitychange', onVisible);
+            }
+        } catch(e) {}
+    };
+    const onVisible = () => { if (document.visibilityState === 'visible') checkResult(); };
+    document.addEventListener('visibilitychange', onVisible);
+    setTimeout(checkResult, 1000);
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// ALARM MODULE
+// Uses AlarmPlugin (native) on Capacitor, falls back to SW notifications on web.
+// Settings: difficulty, ringtone, snooze minutes.
+// ══════════════════════════════════════════════════════════════════════════
+
+function _getAlarmPlugin() {
+    return window.Capacitor?.Plugins?.AlarmPlugin || null;
+}
+
+function getAlarmSettings() {
+    return {
+        difficulty:   localStorage.getItem(STORAGE_KEYS.ALARM_DIFFICULTY)    || 'medium',
+        ringtoneUri:  localStorage.getItem(STORAGE_KEYS.ALARM_RINGTONE)      || '',
+        ringtoneName: localStorage.getItem(STORAGE_KEYS.ALARM_RINGTONE_NAME) || 'Default',
+        snoozeMins:   parseInt(localStorage.getItem(STORAGE_KEYS.ALARM_SNOOZE_MIN) || '5'),
+        eqCount:      parseInt(localStorage.getItem(STORAGE_KEYS.ALARM_EQ_COUNT) || '2'),
+        gentleWake:   localStorage.getItem(STORAGE_KEYS.ALARM_GENTLE_WAKE) !== 'false',
+    };
+}
+
+// ── Equation type system ──────────────────────────────────────────────────
+
+const EQ_TYPE_GROUPS = [
+    { groupKey: 'eqGroupArith', types: [
+        { id: 'add_sub',      nameKey: 'eqAddSub',      diffs: ['easy','medium','hard','veryhard'] },
+        { id: 'multiply',     nameKey: 'eqMultiply',    diffs: ['easy','medium','hard','veryhard'] },
+        { id: 'divide',       nameKey: 'eqDivide',      diffs: ['medium','hard','veryhard'] },
+        { id: 'mixed_chains', nameKey: 'eqMixedChains', diffs: ['medium','hard','veryhard'] },
+        { id: 'diff_squares', nameKey: 'eqDiffSquares', diffs: ['hard','veryhard'] },
+    ]},
+    { groupKey: 'eqGroupAlgebra', types: [
+        { id: 'linear_x',    nameKey: 'eqLinearX',     diffs: ['medium','hard','veryhard','expert'] },
+        { id: 'ax2',         nameKey: 'eqAx2',         diffs: ['hard','veryhard','expert'] },
+        { id: 'quad_roots',  nameKey: 'eqQuadRoots',   diffs: ['expert'] },
+        { id: 'quad_vertex', nameKey: 'eqQuadVertex',  diffs: ['expert'] },
+        { id: 'expand',      nameKey: 'eqExpand',      diffs: ['expert'] },
+        { id: 'cubic',       nameKey: 'eqCubic',       diffs: ['expert'] },
+    ]},
+    { groupKey: 'eqGroupGeometry', types: [
+        { id: 'circle_area', nameKey: 'eqCircleArea',  diffs: ['medium','hard','expert'] },
+        { id: 'arc_length',  nameKey: 'eqArcLength',   diffs: ['hard','expert'] },
+        { id: 'sector_area', nameKey: 'eqSectorArea',  diffs: ['hard','expert'] },
+        { id: 'chord',       nameKey: 'eqChord',       diffs: ['expert'] },
+    ]},
+    { groupKey: 'eqGroupOther', types: [
+        { id: 'percentage',   nameKey: 'eqPercentage',  diffs: ['expert'] },
+        { id: 'complex_add',  nameKey: 'eqComplexAdd',  diffs: ['expert'] },
+        { id: 'complex_mul',  nameKey: 'eqComplexMul',  diffs: ['expert'] },
+    ]},
+];
+
+function _diffLabel(d) {
+    const map = { easy:'diffEasy', medium:'diffMedium', hard:'diffHard', veryhard:'diffVeryHard', expert:'diffExpert' };
+    return t(map[d] || d);
+}
+
+function _getEqTypes(key) {
+    try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch { return []; }
+}
+function _saveEqTypes(key, arr) {
+    localStorage.setItem(key, JSON.stringify(arr));
+}
+function _eqTypesSummary(key, eqCount) {
+    const types = _getEqTypes(key);
+    if (types.length === 0) return t('alarmNoTypes');
+    const n = parseInt(eqCount) || 2;
+    const countWord = n === 1 ? t('alarmEqCount') : t('alarmEqCountPl');
+    return `${types.length} ${state.language === 'ar' ? 'نوع' : (types.length === 1 ? 'type' : 'types')} · ${n} ${countWord}`;
+}
+
+function _openEquationTypePicker(storageKey, eqCountKey, labelElId) {
+    const existing = document.getElementById('eqTypePicker');
+    if (existing) existing.remove();
+
+    const screen = document.createElement('div');
+    screen.id = 'eqTypePicker';
+    screen.className = 'fixed inset-0 z-[400] flex flex-col theme-bg';
+    screen.innerHTML = `
+        <div class="flex items-center justify-between px-4 py-4 border-b theme-border shrink-0" style="padding-top:calc(1rem + 22px)">
+            <button onclick="document.getElementById('eqTypePicker').remove()" class="p-2 -ml-2 hover:theme-bg-tertiary rounded-lg">
+                <svg class="w-5 h-5 theme-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <h2 class="text-lg font-semibold theme-text">${t('eqTypesTitle')}</h2>
+            <button onclick="_closeEqTypePicker('${storageKey}','${eqCountKey}','${labelElId}')" class="text-orange-500 font-semibold text-sm px-2 py-1">${t('save')}</button>
+        </div>
+        <div class="flex-1 overflow-y-auto" id="eqTypePickerList" style="-webkit-overflow-scrolling:touch;overscroll-behavior:contain;min-height:0">
+            ${_renderEqTypeGroups(storageKey)}
+        </div>`;
+    document.body.appendChild(screen);
+}
+
+function _closeEqTypePicker(storageKey, eqCountKey, labelElId) {
+    document.getElementById('eqTypePicker')?.remove();
+    const el = document.getElementById(labelElId);
+    if (el) el.textContent = _eqTypesSummary(storageKey, localStorage.getItem(eqCountKey) || '2');
+}
+
+function _renderEqTypeGroups(storageKey) {
+    const selected = _getEqTypes(storageKey);
+    const selMap = {};
+    selected.forEach(s => selMap[s.type] = s.difficulty);
+
+    return EQ_TYPE_GROUPS.map(grp => `
+        <div class="pt-2 pb-1">
+            <div class="px-5 py-1.5 text-xs font-semibold theme-text-secondary uppercase tracking-wider">${t(grp.groupKey)}</div>
+            ${grp.types.map(tp => {
+                const isSel = selMap.hasOwnProperty(tp.id);
+                const diff  = selMap[tp.id];
+                const canChange = tp.diffs.length > 1;
+                return `<div class="flex items-center px-5 py-3 border-b theme-border gap-3 ${isSel ? 'bg-orange-500/5' : ''}">
+                    <span class="flex-1 text-sm ${isSel ? 'theme-text font-medium' : 'theme-text'}">${t(tp.nameKey)}</span>
+                    ${isSel ? `
+                        <button onclick="${canChange ? `_openEqDiffPopup('${storageKey}','${tp.id}')` : 'void(0)'}"
+                            class="px-2.5 py-1 rounded-full text-xs font-semibold bg-orange-500 text-white flex items-center gap-1 ${canChange ? '' : 'cursor-default'}">
+                            ${_diffLabel(diff)}${canChange ? ' ▾' : ''}
+                        </button>
+                        <button onclick="_removeEqType('${storageKey}','${tp.id}')" class="w-6 h-6 rounded-full flex items-center justify-center text-xs theme-text-secondary hover:bg-red-500/20 hover:text-red-400 transition-colors">✕</button>
+                    ` : `
+                        <button onclick="_addEqType('${storageKey}','${tp.id}','${tp.diffs[0]}')"
+                            class="px-3 py-1 rounded-full text-xs font-semibold border theme-border theme-text-secondary hover:border-orange-500 hover:text-orange-500 transition-colors">
+                            ${t('eqAdd')}
+                        </button>
+                    `}
+                </div>`;
+            }).join('')}
+        </div>`).join('');
+}
+
+function _addEqType(storageKey, typeId, defaultDiff) {
+    const types = _getEqTypes(storageKey);
+    if (!types.find(t => t.type === typeId)) {
+        types.push({ type: typeId, difficulty: defaultDiff });
+        _saveEqTypes(storageKey, types);
+    }
+    const list = document.getElementById('eqTypePickerList');
+    if (list) list.innerHTML = _renderEqTypeGroups(storageKey);
+}
+
+function _removeEqType(storageKey, typeId) {
+    _saveEqTypes(storageKey, _getEqTypes(storageKey).filter(t => t.type !== typeId));
+    const list = document.getElementById('eqTypePickerList');
+    if (list) list.innerHTML = _renderEqTypeGroups(storageKey);
+}
+
+function _openEqDiffPopup(storageKey, typeId) {
+    let diffs = [];
+    for (const grp of EQ_TYPE_GROUPS) {
+        const t = grp.types.find(t => t.id === typeId);
+        if (t) { diffs = t.diffs; break; }
+    }
+    const current = (_getEqTypes(storageKey).find(t => t.type === typeId) || {}).difficulty;
+    _showPickerPopup(t('eqDiffTitle'), diffs.map(d => [d, _diffLabel(d)]), current, val => {
+        const types = _getEqTypes(storageKey);
+        const idx = types.findIndex(t => t.type === typeId);
+        if (idx >= 0) types[idx].difficulty = val;
+        _saveEqTypes(storageKey, types);
+        const list = document.getElementById('eqTypePickerList');
+        if (list) list.innerHTML = _renderEqTypeGroups(storageKey);
+    });
+}
+
+
+async function pickAlarmBackground() {
+    const AP = _getAlarmPlugin();
+    if (!AP) { alert('Only available in the Android app.'); return; }
+    await AP.pickAlarmBackground();
+    const checkResult = async () => {
+        try {
+            const result = await AP.getAlarmBackground();
+            if (result.uri) {
+                // Update wallpaper label in edit screen if open
+                const nameEl = document.getElementById('alarmBgName') ||
+                               document.querySelector('#alarmEditScreen [onclick="pickAlarmBackground()"] span');
+                if (nameEl) nameEl.textContent = 'Custom image set ✓';
+                document.removeEventListener('visibilitychange', onVisible);
+            }
+        } catch(e) {}
+    };
+    const onVisible = () => { if (document.visibilityState === 'visible') checkResult(); };
+    document.addEventListener('visibilitychange', onVisible);
+    setTimeout(checkResult, 1000);
+}
+
+async function removeAlarmBackground() {
+    const AP = _getAlarmPlugin();
+    if (!AP) return;
+    await AP.removeAlarmBackground();
+    const nameEl = document.getElementById('alarmBgName') ||
+                   document.querySelector('#alarmEditScreen [onclick="pickAlarmBackground()"] span');
+    if (nameEl) nameEl.textContent = 'Choose image';
+}
+
+async function requestOverlayPermission() {
+    const AP = _getAlarmPlugin();
+    if (!AP) return;
+
+    const banner = document.createElement('div');
+    banner.id = 'overlayPermBanner';
+    banner.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm theme-bg border theme-border rounded-2xl shadow-2xl z-[300] p-4 flex flex-col gap-3';
+    banner.innerHTML = `
+        <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-full bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center shrink-0 text-lg">🔔</div>
+            <div class="flex-1">
+                <p class="text-sm font-semibold theme-text">Enable Full-Screen Alarms</p>
+                <p class="text-xs theme-text-secondary mt-0.5 leading-relaxed">Allow "Display over other apps" so alarms show over your lock screen — just like Alarmy.</p>
+            </div>
+        </div>
+        <div class="flex gap-2">
+            <button id="overlaySkipBtn" class="flex-1 py-2 rounded-xl border theme-border text-sm theme-text-secondary hover:theme-bg-tertiary transition-colors">Not now</button>
+            <button id="overlayAllowBtn" class="flex-1 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium transition-colors">Allow</button>
+        </div>`;
+    document.body.appendChild(banner);
+
+    document.getElementById('overlaySkipBtn').onclick = () => {
+        banner.remove();
+        localStorage.setItem('uwu_overlay_skipped', '1');
+    };
+    document.getElementById('overlayAllowBtn').onclick = async () => {
+        banner.remove();
+        await AP.requestOverlayPermission();
+    };
+}
+
+
+
+// ══════════════════════════════════════════════════════════════════════════
+// STANDALONE ALARMS MODULE  (Alarmy-style)
+// ══════════════════════════════════════════════════════════════════════════
+
+function getStandaloneAlarms() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.STANDALONE_ALARMS) || '[]'); }
+    catch { return []; }
+}
+function saveStandaloneAlarms(arr) {
+    localStorage.setItem(STORAGE_KEYS.STANDALONE_ALARMS, JSON.stringify(arr));
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+
+function _alarmFmt12(time) {
+    const [h, m] = time.split(':').map(Number);
+    return { h12: h % 12 || 12, mins: String(m).padStart(2,'0'), ampm: h >= 12 ? 'PM' : 'AM' };
+}
+
+function _alarmDayCircles(alarm) {
+    const days  = ['S','M','T','W','T','F','S'];
+    const repeat = alarm.repeat || 'none';
+    const activeIdx = (() => {
+        if (repeat === 'daily')    return [0,1,2,3,4,5,6];
+        if (repeat === 'weekdays') return [1,2,3,4,5];
+        if (repeat === 'weekends') return [0,6];
+        if (repeat === 'weekly') {
+            const d = new Date(alarm.id);
+            return [d.getDay()];
+        }
+        return [];
+    })();
+    if (repeat === 'none') return '<span class="text-xs theme-text-secondary">Once</span>';
+    return days.map((d, i) => `
+        <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold transition-colors
+            ${activeIdx.includes(i) ? 'bg-orange-500 text-white' : 'theme-bg-tertiary theme-text-secondary'}">${d}</span>
+    `).join('');
+}
+
+function _alarmSubtitle(alarm) {
+    const types  = alarm.equationTypes || [];
+    const eqPart = types.length === 0 ? 'No equations' : `${types.length} type${types.length !== 1 ? 's' : ''} · ${alarm.eqCount || 2} eq`;
+    const snooze = alarm.snoozeMins > 0 ? `Snooze ${alarm.snoozeMins}m` : 'No snooze';
+    const extras = [alarm.gentleWake ? '🌅' : null, alarm.wakeUpCheck ? '✓ Check' : null].filter(Boolean).join('  ');
+    return `${eqPart}  ·  ${snooze}${extras ? '  ·  '+extras : ''}`;
+}
+
+// ── Main panel (full-screen, Alarmy-style) ────────────────────────────────
+
+function openStandaloneAlarmsPanel() {
+    const existing = document.getElementById('standaloneAlarmsPanel');
+    if (existing) { existing.remove(); return; }
+
+    const panel = document.createElement('div');
+    panel.id = 'standaloneAlarmsPanel';
+    panel.className = 'fixed inset-0 flex flex-col theme-bg';
+    panel.style.zIndex = '200';
+    panel.innerHTML = `
+        <div class="flex items-center justify-between px-4 py-4 border-b theme-border shrink-0" style="padding-top: calc(1rem + 22px)">
+            <button onclick="document.getElementById('standaloneAlarmsPanel').remove(); document.getElementById('alarmsFab')?.remove();" class="p-2 -ml-2 hover:theme-bg-tertiary rounded-lg transition-colors">
+                <svg class="w-5 h-5 theme-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <h2 class="text-lg font-semibold theme-text">${t('alarmsTitle')}</h2>
+            <div class="w-9"></div>
+        </div>
+        <div id="standaloneAlarmsList" class="flex-1 overflow-y-auto" style="padding-bottom: 80px"></div>
+        <button id="alarmsFab"
+            onclick="openAlarmEditScreen(null)"
+            style="position:absolute; bottom:16px; right:24px; width:56px; height:56px; border-radius:50%; background:#f97316; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 16px rgba(0,0,0,0.4); border:none; cursor:pointer; z-index:10;">
+            <svg width="28" height="28" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        </button>`;
+
+    document.body.appendChild(panel);
+    _renderAlarmList();
+}
+
+function _renderAlarmList() {
+    const list   = document.getElementById('standaloneAlarmsList');
+    if (!list) return;
+    const alarms = getStandaloneAlarms();
+
+    if (alarms.length === 0) {
+        list.innerHTML = `
+            <div class="flex flex-col items-center justify-center h-full gap-4 pb-24">
+                <div class="w-20 h-20 rounded-full bg-orange-500/10 flex items-center justify-center text-4xl">⏰</div>
+                <p class="theme-text-secondary text-sm">${state.language === 'ar' ? 'لا توجد منبّهات' : 'No alarms yet'}</p>
+                <p class="theme-text-secondary text-xs">${state.language === 'ar' ? 'اضغط + لإضافة منبّه' : 'Tap + to add one'}</p>
+            </div>`;
+        return;
+    }
+
+    list.innerHTML = alarms.map((alarm, i) => {
+        const { h12, mins, ampm } = _alarmFmt12(alarm.time || '08:00');
+        return `
+        <div class="alarm-row relative overflow-hidden border-b theme-border" data-index="${i}">
+            <!-- swipe-reveal delete -->
+            <div class="alarm-delete-bg absolute inset-y-0 right-0 w-24 bg-red-500 flex items-center justify-center translate-x-full transition-transform duration-200">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </div>
+            <!-- main content -->
+            <div class="alarm-row-content flex items-center px-5 py-4 gap-4 theme-bg cursor-pointer transition-transform duration-200"
+                onclick="_onAlarmRowTap(${i}, event)">
+                <div class="flex-1 min-w-0" onclick="openAlarmEditScreen(${i}); event.stopPropagation();">
+                    <div class="flex items-end gap-1.5 mb-0.5">
+                        <span class="text-4xl font-light theme-text leading-none">${h12}:${mins}</span>
+                        <span class="text-base theme-text-secondary mb-1">${ampm}</span>
+                    </div>
+                    <div class="text-sm font-medium theme-text mb-1">${alarm.label || 'Alarm'}</div>
+                    <div class="flex items-center gap-1 flex-wrap mb-1.5">${_alarmDayCircles(alarm)}</div>
+                    <div class="text-xs theme-text-secondary truncate">${_alarmSubtitle(alarm)}</div>
+                </div>
+                <button onclick="toggleStandaloneAlarm(${i}); event.stopPropagation();"
+                    class="relative w-12 h-7 rounded-full transition-colors shrink-0 ${alarm.enabled ? 'bg-orange-500' : 'bg-gray-400 dark:bg-gray-600'}">
+                    <span class="absolute top-0.5 transition-all duration-200 w-6 h-6 bg-white rounded-full shadow ${alarm.enabled ? 'right-0.5' : 'left-0.5'}"></span>
+                </button>
+            </div>
+        </div>`;
+    }).join('') + '<div class="h-24"></div>';
+
+    // Attach swipe handlers
+    list.querySelectorAll('.alarm-row').forEach(row => {
+        const content = row.querySelector('.alarm-row-content');
+        const delBg   = row.querySelector('.alarm-delete-bg');
+        let startX = 0, dx = 0, swiping = false, revealed = false;
+
+        content.addEventListener('touchstart', e => {
+            startX = e.touches[0].clientX; dx = 0; swiping = true;
+        }, { passive: true });
+
+        content.addEventListener('touchmove', e => {
+            if (!swiping) return;
+            dx = e.touches[0].clientX - startX;
+            if (dx > 0 && !revealed) return;
+            const clamp = Math.max(-96, Math.min(0, dx + (revealed ? -96 : 0)));
+            content.style.transform = `translateX(${clamp}px)`;
+            delBg.style.transform   = `translateX(${100 + clamp/96*100}%)`;
+        }, { passive: true });
+
+        content.addEventListener('touchend', () => {
+            swiping = false;
+            const threshold = revealed ? -48 : -48;
+            if (dx < threshold) {
+                // reveal delete
+                content.style.transform = 'translateX(-96px)';
+                delBg.style.transform   = 'translateX(0)';
+                revealed = true;
+            } else if (revealed && dx > 48) {
+                // hide delete
+                content.style.transform = '';
+                delBg.style.transform   = 'translateX(100%)';
+                revealed = false;
+            } else {
+                content.style.transform = revealed ? 'translateX(-96px)' : '';
+                delBg.style.transform   = revealed ? 'translateX(0)' : 'translateX(100%)';
+            }
+        });
+
+        delBg.addEventListener('click', () => {
+            const idx = parseInt(row.dataset.index);
+            deleteStandaloneAlarm(idx);
+        });
+    });
+}
+
+function _onAlarmRowTap(index, event) {
+    // Only fires if not tapping the toggle or label (those have their own handlers)
+    openAlarmEditScreen(index);
+}
+
+// ── Edit / Add screen ─────────────────────────────────────────────────────
+
+function openAlarmEditScreen(index) {
+    const existing = document.getElementById('alarmEditScreen');
+    if (existing) existing.remove();
+
+    const alarms  = getStandaloneAlarms();
+    const alarm   = index !== null ? alarms[index] : null;
+    const isNew   = alarm === null;
+
+    const now  = new Date();
+    const defTime = alarm?.time || `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+    // Initialise tmp state
+    localStorage.setItem('_editAlarmRingtoneUri',  alarm?.ringtoneUri  || '');
+    localStorage.setItem('_editAlarmRingtoneName', alarm?.ringtoneName || 'Default');
+    localStorage.setItem('_editAlarmEqCount',      String(alarm?.eqCount  ?? 2));
+    localStorage.setItem('_editAlarmSnoozeMins',   String(alarm?.snoozeMins ?? 5));
+    localStorage.setItem('_editAlarmSnoozeLimit',  String(alarm?.snoozeLimit ?? 0));
+    localStorage.setItem('_editAlarmGentleWake',   String(alarm?.gentleWake !== false));
+    localStorage.setItem('_editAlarmWakeUpCheck',  String(!!alarm?.wakeUpCheck));
+    localStorage.setItem('_editAlarmSafetyStop',   String(!!alarm?.safetyStop));
+    // Equation types — init from alarm or empty
+    _saveEqTypes('_editAlarmEquationTypes', alarm?.equationTypes || []);
+
+    const screen = document.createElement('div');
+    screen.id = 'alarmEditScreen';
+    screen.className = 'fixed inset-0 z-[300] flex flex-col theme-bg';
+
+    const eqCount   = alarm?.eqCount ?? 2;
+    const eqCountLabel = `${eqCount} ${eqCount !== 1 ? t('alarmEqCountPl') : t('alarmEqCount')}`;
+    const eqTypesSummary = _eqTypesSummary('_editAlarmEquationTypes', eqCount);
+    const snooze    = alarm?.snoozeMins ?? 5;
+    const snoozeLabel = snooze === 0 ? 'Off' : `${snooze} min`;
+    const gentleWake  = alarm?.gentleWake !== false;
+    const wakeUpCheck = !!alarm?.wakeUpCheck;
+    const safetyStop  = !!alarm?.safetyStop;
+
+    const repeatOpts = [
+        ['none',     t('alarmOneTime')],
+        ['daily',    t('alarmEveryDay')],
+        ['weekdays', t('alarmWeekdays')],
+        ['weekends', t('alarmWeekends')],
+        ['weekly',   t('alarmWeekly')]
+    ].map(([v,l]) => `<option value="${v}" ${(alarm?.repeat||'none')===v ? 'selected' : ''}>${l}</option>`).join('');
+
+    screen.innerHTML = `
+        <div class="flex items-center justify-between px-4 py-4 border-b theme-border shrink-0" style="padding-top: calc(1rem + 22px)">
+            <button onclick="document.getElementById('alarmEditScreen').remove()" class="p-2 -ml-2 hover:theme-bg-tertiary rounded-lg transition-colors">
+                <svg class="w-5 h-5 theme-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <h2 class="text-lg font-semibold theme-text">${isNew ? t('alarmNewTitle') : t('alarmEditTitle')}</h2>
+            <button onclick="saveAlarmEditScreen(${index})" class="text-orange-500 font-semibold text-sm px-2 py-1">${t('save')}</button>
+        </div>
+
+        <!-- Large time display -->
+        <div class="flex items-center justify-center py-10 border-b theme-border shrink-0">
+            <input type="time" id="editAlarmTime" value="${defTime}"
+                class="text-6xl font-light theme-text bg-transparent border-none outline-none text-center w-auto">
+        </div>
+
+        <!-- Settings rows -->
+        <div class="flex-1 overflow-y-auto">
+            <!-- Label -->
+            <label class="flex items-center px-5 py-4 border-b theme-border gap-4">
+                <span class="text-sm theme-text-secondary w-24 shrink-0">${t('alarmLabel')}</span>
+                <input type="text" id="editAlarmLabel" value="${alarm?.label || ''}" placeholder="${t('alarmLabel')}" maxlength="40"
+                    class="flex-1 bg-transparent theme-text text-sm outline-none text-right placeholder-gray-400">
+            </label>
+            <!-- Repeat -->
+            <label class="flex items-center px-5 py-4 border-b theme-border gap-4">
+                <span class="text-sm theme-text-secondary w-24 shrink-0">${t('alarmRepeat')}</span>
+                <select id="editAlarmRepeat" class="flex-1 bg-transparent theme-text text-sm outline-none text-right border-none appearance-none">
+                    ${repeatOpts}
+                </select>
+            </label>
+            <!-- Sound -->
+            <button onclick="_pickEditAlarmRingtone()" class="w-full flex items-center px-5 py-4 border-b theme-border gap-4">
+                <span class="text-sm theme-text-secondary w-24 shrink-0 text-left">${t('alarmSound')}</span>
+                <span id="editAlarmRingtoneName" class="flex-1 text-sm theme-text text-right truncate">${alarm?.ringtoneName || t('alarmSound')}</span>
+                <svg class="w-4 h-4 theme-text-secondary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <!-- Snooze -->
+            <button onclick="_openSnoozePopup()" class="w-full flex items-center px-5 py-4 border-b theme-border gap-4">
+                <span class="text-sm theme-text-secondary w-24 shrink-0 text-left">${t('alarmSnooze')}</span>
+                <span id="editAlarmSnoozeLabel" class="flex-1 text-sm theme-text text-right">${snoozeLabel}</span>
+                <svg class="w-4 h-4 theme-text-secondary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <!-- Snooze limit -->
+            <button onclick="_openSnoozeLimitPopup()" class="w-full flex items-center px-5 py-4 border-b theme-border gap-4">
+                <span class="text-sm theme-text-secondary w-24 shrink-0 text-left">${t('alarmSnoozeLimit')}</span>
+                <span id="editAlarmSnoozeLimitLabel" class="flex-1 text-sm theme-text text-right">${_snoozeLimitLabel(parseInt(localStorage.getItem('_editAlarmSnoozeLimit') ?? '0'))}</span>
+                <svg class="w-4 h-4 theme-text-secondary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <!-- Equation Types -->
+            <button onclick="_openEquationTypePicker('_editAlarmEquationTypes','_editAlarmEqCount','editAlarmEqLabel')" class="w-full flex items-center px-5 py-4 border-b theme-border gap-4">
+                <span class="text-sm theme-text-secondary w-24 shrink-0 text-left">${t('alarmEqTypes')}</span>
+                <span id="editAlarmEqLabel" class="flex-1 text-sm theme-text text-right">${eqTypesSummary}</span>
+                <svg class="w-4 h-4 theme-text-secondary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <!-- Equation Count -->
+            <button onclick="_openEditEqCountPopup()" class="w-full flex items-center px-5 py-4 border-b theme-border gap-4">
+                <span class="text-sm theme-text-secondary w-24 shrink-0 text-left">${t('alarmCount')}</span>
+                <span id="editAlarmEqCountLabel" class="flex-1 text-sm theme-text text-right">${eqCountLabel}</span>
+                <svg class="w-4 h-4 theme-text-secondary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <!-- Gentle wake -->
+            <div class="flex items-center px-5 py-4 border-b theme-border gap-4">
+                <div class="flex-1">
+                    <div class="text-sm theme-text">${t('alarmGentleWake')}</div>
+                    <div class="text-xs theme-text-secondary mt-0.5">${t('alarmGentleDesc')}</div>
+                </div>
+                <button id="editGentleWakeBtn" onclick="_toggleEditBool('editGentleWakeBtn','_editAlarmGentleWake')"
+                    class="relative w-12 h-7 rounded-full transition-colors shrink-0 ${gentleWake ? 'bg-orange-500' : 'bg-gray-400 dark:bg-gray-600'}">
+                    <span class="absolute top-0.5 w-6 h-6 bg-white rounded-full shadow transition-all duration-200 ${gentleWake ? 'right-0.5' : 'left-0.5'}"></span>
+                </button>
+            </div>
+            <!-- Wake up check -->
+            <div class="flex items-center px-5 py-4 border-b theme-border gap-4">
+                <div class="flex-1">
+                    <div class="text-sm theme-text">${t('alarmWakeCheck')}</div>
+                    <div class="text-xs theme-text-secondary mt-0.5">${t('alarmWakeDesc')}</div>
+                </div>
+                <button id="editWakeUpCheckBtn" onclick="_toggleEditBool('editWakeUpCheckBtn','_editAlarmWakeUpCheck')"
+                    class="relative w-12 h-7 rounded-full transition-colors shrink-0 ${wakeUpCheck ? 'bg-orange-500' : 'bg-gray-400 dark:bg-gray-600'}">
+                    <span class="absolute top-0.5 w-6 h-6 bg-white rounded-full shadow transition-all duration-200 ${wakeUpCheck ? 'right-0.5' : 'left-0.5'}"></span>
+                </button>
+            </div>
+            <!-- Safety stop -->
+            <div class="flex items-center px-5 py-4 border-b theme-border gap-4">
+                <div class="flex-1">
+                    <div class="text-sm theme-text">${t('alarmSafetyStop')}</div>
+                    <div class="text-xs theme-text-secondary mt-0.5">${t('alarmSafetyDesc')}</div>
+                </div>
+                <button id="editSafetyStopBtn" onclick="_toggleEditBool('editSafetyStopBtn','_editAlarmSafetyStop')"
+                    class="relative w-12 h-7 rounded-full transition-colors shrink-0 ${safetyStop ? 'bg-orange-500' : 'bg-gray-400 dark:bg-gray-600'}">
+                    <span class="absolute top-0.5 w-6 h-6 bg-white rounded-full shadow transition-all duration-200 ${safetyStop ? 'right-0.5' : 'left-0.5'}"></span>
+                </button>
+            </div>
+            <!-- Wallpaper -->
+            <button onclick="pickAlarmBackground()" class="w-full flex items-center px-5 py-4 border-b theme-border gap-4">
+                <span class="text-sm theme-text-secondary w-24 shrink-0 text-left">${t('alarmWallpaper')}</span>
+                <span class="flex-1 text-sm theme-text text-right">${t('alarmCustomImg')}</span>
+                <svg class="w-4 h-4 theme-text-secondary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <!-- Preview -->
+            <button onclick="_previewEditAlarm()" class="w-full flex items-center px-5 py-4 border-b theme-border gap-4">
+                <svg class="w-4 h-4 theme-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="flex-1 text-sm theme-text text-left">${t('alarmPreview')}</span>
+            </button>
+            ${!isNew ? `
+            <button onclick="deleteStandaloneAlarm(${index}); document.getElementById('alarmEditScreen')?.remove();"
+                class="w-full flex items-center justify-center px-5 py-4 gap-2 text-red-500 text-sm font-medium mt-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                ${t('alarmDelete')}
+            </button>` : ''}
+            <div class="h-10"></div>
+        </div>`;
+
+    document.body.appendChild(screen);
+}
+
+function _toggleEditBool(btnId, storageKey) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    const current = localStorage.getItem(storageKey) !== 'false' && localStorage.getItem(storageKey) !== null
+        ? localStorage.getItem(storageKey) === 'true' || localStorage.getItem(storageKey) !== 'false'
+        : false;
+    // Actually check the button's current state from its color class
+    const isOn = btn.classList.contains('bg-orange-500');
+    const newVal = !isOn;
+    localStorage.setItem(storageKey, String(newVal));
+    btn.classList.toggle('bg-orange-500', newVal);
+    btn.classList.toggle('bg-gray-400', !newVal);
+    btn.classList.toggle('dark:bg-gray-600', !newVal);
+    const dot = btn.querySelector('span');
+    if (dot) { dot.classList.toggle('right-0.5', newVal); dot.classList.toggle('left-0.5', !newVal); }
+}
+
+function _snoozeLimitLabel(n) {
+    if (!n || n === 0) return t('alarmSnoozeLimitUnlimited');
+    return `${n} ${n === 1 ? t('alarmSnoozeLimitTimes') : t('alarmSnoozeLimitTimespl')}`;
+}
+
+function _openSnoozeLimitPopup() {
+    const current = parseInt(localStorage.getItem('_editAlarmSnoozeLimit') ?? '0');
+    const opts = [
+        [0, t('alarmSnoozeLimitUnlimited')],
+        ...[1,2,3,5].map(n => [n, `${n} ${n === 1 ? t('alarmSnoozeLimitTimes') : t('alarmSnoozeLimitTimespl')}`])
+    ];
+    _showPickerPopup(t('alarmSnoozeLimit'), opts, current, val => {
+        localStorage.setItem('_editAlarmSnoozeLimit', String(val));
+        const el = document.getElementById('editAlarmSnoozeLimitLabel');
+        if (el) el.textContent = _snoozeLimitLabel(parseInt(val));
+    });
+}
+
+function _evAlarmSnoozeLimitPopup() {
+    const current = parseInt(localStorage.getItem('_eventAlarmSnoozeLimit_tmp') ?? '0');
+    const opts = [
+        [0, t('alarmSnoozeLimitUnlimited')],
+        ...[1,2,3,5].map(n => [n, `${n} ${n === 1 ? t('alarmSnoozeLimitTimes') : t('alarmSnoozeLimitTimespl')}`])
+    ];
+    _showPickerPopup(t('alarmSnoozeLimit'), opts, current, val => {
+        localStorage.setItem('_eventAlarmSnoozeLimit_tmp', String(val));
+        const el = document.getElementById('evAlarmSnoozeLimitLabel');
+        if (el) el.textContent = _snoozeLimitLabel(parseInt(val));
+    });
+}
+
+function _openSnoozePopup() {
+    const current = parseInt(localStorage.getItem('_editAlarmSnoozeMins') ?? '5');
+    const opts = [[0,t('alarmSnoozeOff')],[1,`1 ${t('alarmSnoozeMin')}`],[5,`5 ${t('alarmSnoozeMin')}`],
+                  [10,`10 ${t('alarmSnoozeMin')}`],[15,`15 ${t('alarmSnoozeMin')}`],[30,`30 ${t('alarmSnoozeMin')}`]];
+    _showPickerPopup(t('alarmSnooze'), opts, current, val => {
+        localStorage.setItem('_editAlarmSnoozeMins', String(val));
+        const lbl = parseInt(val) === 0 ? t('alarmSnoozeOff') : `${val} ${t('alarmSnoozeMin')}`;
+        const el = document.getElementById('editAlarmSnoozeLabel');
+        if (el) el.textContent = lbl;
+    });
+}
+
+function _openEditEqCountPopup() {
+    const current = parseInt(localStorage.getItem('_editAlarmEqCount') || '2');
+    _showPickerPopup(t('alarmCount'),
+        [1,2,3,5,7,10].map(n => [n, `${n} ${n !== 1 ? t('alarmEqCountPl') : t('alarmEqCount')}`]),
+        current, val => {
+            localStorage.setItem('_editAlarmEqCount', String(val));
+            const el = document.getElementById('editAlarmEqCountLabel');
+            if (el) el.textContent = `${val} ${val !== 1 ? t('alarmEqCountPl') : t('alarmEqCount')}`;
+            const el2 = document.getElementById('editAlarmEqLabel');
+            if (el2) el2.textContent = _eqTypesSummary('_editAlarmEquationTypes', val);
+        });
+}
+
+function _showPickerPopup(title, options, current, onSelect) {
+    const existing = document.getElementById('pickerPopup');
+    if (existing) existing.remove();
+
+    const sheet = document.createElement('div');
+    sheet.id = 'pickerPopup';
+    sheet.className = 'fixed inset-0 modal-backdrop flex items-end justify-center z-[400]';
+
+    const inner = document.createElement('div');
+    inner.className = 'theme-bg border theme-border rounded-t-2xl w-full max-w-sm p-5 flex flex-col';
+    inner.style.cssText = 'max-height:70vh';
+
+    const heading = document.createElement('h3');
+    heading.className = 'font-semibold text-sm theme-text mb-3 shrink-0';
+    heading.textContent = title;
+    inner.appendChild(heading);
+
+    const list = document.createElement('div');
+    list.style.cssText = 'overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;flex:1;min-height:0';
+
+    options.forEach(([v, l]) => {
+        const btn = document.createElement('button');
+        btn.className = 'w-full flex items-center justify-between px-3 py-3 rounded-xl hover:theme-bg-tertiary transition-colors text-sm theme-text' + (v === current ? ' font-semibold text-orange-500' : '');
+        btn.innerHTML = `<span>${l}</span>` + (v === current ? '<svg class="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>' : '');
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            sheet.remove();
+            onSelect(v);
+        });
+        list.appendChild(btn);
+    });
+
+    inner.appendChild(list);
+    sheet.appendChild(inner);
+    document.body.appendChild(sheet);
+    sheet.addEventListener('click', e => { if (e.target === sheet) sheet.remove(); });
+}
+
+async function _pickEditAlarmRingtone() {
+    const AP = _getAlarmPlugin();
+    if (!AP) { alert('Ringtone picker only available in the Android app.'); return; }
+    const currentUri = localStorage.getItem('_editAlarmRingtoneUri') || '';
+    await AP.pickRingtone({ currentUri });
+    const check = async () => {
+        try {
+            const r = await AP.getRingtoneResult();
+            if (r.ready) {
+                localStorage.setItem('_editAlarmRingtoneUri',  r.uri  || '');
+                localStorage.setItem('_editAlarmRingtoneName', r.name || 'Default');
+                const el = document.getElementById('editAlarmRingtoneName');
+                if (el) el.textContent = r.name || 'Default';
+                document.removeEventListener('visibilitychange', onV);
+            }
+        } catch(e) {}
+    };
+    const onV = () => { if (document.visibilityState === 'visible') check(); };
+    document.addEventListener('visibilitychange', onV);
+    setTimeout(check, 1000);
+}
+
+async function _previewEditAlarm() {
+    const AP = _getAlarmPlugin();
+    if (!AP) { alert('Preview only available in the Android app.'); return; }
+    try {
+        await AP.previewAlarm({
+            equationTypes: JSON.stringify(_getEqTypes('_editAlarmEquationTypes')),
+            eqCount:      parseInt(localStorage.getItem('_editAlarmEqCount') || '2'),
+            snoozeMins:   parseInt(localStorage.getItem('_editAlarmSnoozeMins') || '5'),
+            ringtoneUri:  localStorage.getItem('_editAlarmRingtoneUri') || '',
+            gentleWake:   localStorage.getItem('_editAlarmGentleWake') !== 'false',
+        });
+    } catch(e) { console.warn('[Alarm] previewAlarm failed:', e); }
+}
+
+async function saveAlarmEditScreen(index) {
+    const time         = document.getElementById('editAlarmTime')?.value || '08:00';
+    const label        = document.getElementById('editAlarmLabel')?.value?.trim() || 'Alarm';
+    const repeat       = document.getElementById('editAlarmRepeat')?.value || 'none';
+    const equationTypes = _getEqTypes('_editAlarmEquationTypes');
+    const eqCount      = parseInt(localStorage.getItem('_editAlarmEqCount')    || '2');
+    const snoozeMins   = parseInt(localStorage.getItem('_editAlarmSnoozeMins') || '5');
+    const snoozeLimit  = parseInt(localStorage.getItem('_editAlarmSnoozeLimit') ?? '0');
+    const ringtoneUri  = localStorage.getItem('_editAlarmRingtoneUri')  || '';
+    const ringtoneName = localStorage.getItem('_editAlarmRingtoneName') || 'Default';
+    const gentleWake   = localStorage.getItem('_editAlarmGentleWake')  !== 'false';
+    const wakeUpCheck  = localStorage.getItem('_editAlarmWakeUpCheck') === 'true';
+    const safetyStop   = localStorage.getItem('_editAlarmSafetyStop')  === 'true';
+
+    if (equationTypes.length === 0) {
+        // No types = tap-to-dismiss mode, that's OK
+    }
+
+    const alarms = getStandaloneAlarms();
+
+    if (index !== null && alarms[index]) {
+        const AP = _getAlarmPlugin();
+        if (AP && _isCapacitor()) await AP.cancelAlarm({ eventId: alarms[index].id });
+        alarms[index] = { ...alarms[index], time, label, repeat, equationTypes, eqCount, snoozeMins, snoozeLimit, ringtoneUri, ringtoneName, gentleWake, wakeUpCheck, safetyStop };
+        saveStandaloneAlarms(alarms);
+        await scheduleStandaloneAlarm(alarms[index]);
+    } else {
+        const alarm = { id: Date.now(), time, label, repeat, equationTypes, eqCount, snoozeMins, snoozeLimit, ringtoneUri, ringtoneName, gentleWake, wakeUpCheck, safetyStop, enabled: true };
+        alarms.push(alarm);
+        saveStandaloneAlarms(alarms);
+        await scheduleStandaloneAlarm(alarm);
+    }
+
+    document.getElementById('alarmEditScreen')?.remove();
+    _renderAlarmList();
+}
+
+function getNextAlarmFire(alarm) {
+    const [h, m] = alarm.time.split(':').map(Number);
+    const now  = new Date();
+    const fire = new Date();
+    fire.setHours(h, m, 0, 0);
+
+    const repeat = alarm.repeat || 'none';
+    if (repeat === 'none') {
+        if (fire.getTime() <= now.getTime()) fire.setDate(fire.getDate() + 1);
+        return fire;
+    }
+
+    for (let i = 0; i < 8; i++) {
+        const candidate = new Date(fire);
+        candidate.setDate(fire.getDate() + i);
+        if (i === 0 && candidate.getTime() <= now.getTime()) continue;
+        const day = candidate.getDay();
+        if (repeat === 'daily')    return candidate;
+        if (repeat === 'weekdays' && day >= 1 && day <= 5) return candidate;
+        if (repeat === 'weekends' && (day === 0 || day === 6)) return candidate;
+        if (repeat === 'weekly') {
+            const created = new Date(alarm.id);
+            if (day === created.getDay()) return candidate;
+        }
+    }
+    if (fire.getTime() <= now.getTime()) fire.setDate(fire.getDate() + 1);
+    return fire;
+}
+
+async function scheduleStandaloneAlarm(alarm) {
+    if (!alarm.enabled) return;
+    const AP = _getAlarmPlugin();
+    if (!AP || !_isCapacitor()) return;
+    const fire = getNextAlarmFire(alarm);
+    try {
+        await AP.scheduleAlarm({
+            eventId:       alarm.id,
+            title:         alarm.label,
+            time:          alarm.time,
+            timestamp:     fire.getTime(),
+            equationTypes: JSON.stringify(alarm.equationTypes || []),
+            eqCount:       alarm.eqCount || 2,
+            snoozeMins:    alarm.snoozeMins,
+            snoozeLimit:   alarm.snoozeLimit ?? 0,
+            ringtoneUri:   alarm.ringtoneUri || '',
+            gentleWake:    alarm.gentleWake !== false,
+            wakeUpCheck:   !!alarm.wakeUpCheck,
+            safetyStop:    !!alarm.safetyStop,
+        });
+    } catch(e) { console.warn('[Alarm] scheduleStandaloneAlarm failed:', e); }
+}
+
+async function toggleStandaloneAlarm(index) {
+    const alarms = getStandaloneAlarms();
+    if (!alarms[index]) return;
+    alarms[index].enabled = !alarms[index].enabled;
+    saveStandaloneAlarms(alarms);
+
+    const AP = _getAlarmPlugin();
+    if (AP && _isCapacitor()) {
+        if (alarms[index].enabled) await scheduleStandaloneAlarm(alarms[index]);
+        else await AP.cancelAlarm({ eventId: alarms[index].id });
+    }
+    _renderAlarmList();
+}
+
+async function deleteStandaloneAlarm(index) {
+    const alarms = getStandaloneAlarms();
+    const alarm  = alarms[index];
+    if (!alarm) return;
+    const AP = _getAlarmPlugin();
+    if (AP && _isCapacitor()) await AP.cancelAlarm({ eventId: alarm.id });
+    alarms.splice(index, 1);
+    saveStandaloneAlarms(alarms);
+    _renderAlarmList();
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// WIDGET DATA MODULE
+// Pushes today's data to the Android home screen widget via WidgetPlugin.
+// Called after any data change (events, tasks, prayer times).
+// ══════════════════════════════════════════════════════════════════════════
+
+function _getWidgetPlugin() {
+    return window.Capacitor?.Plugins?.WidgetPlugin || null;
+}
+
+async function updateWidgetData() {
+    const WP = _getWidgetPlugin();
+    if (!WP) return;   // not running as native app
+
+    try {
+        const today = todayLocalString();
+
+        // Use getEventsForDate to include repeated/virtual events
+        const allTodayEvents = getEventsForDate(today)
+            .filter(e => state.activeCalendars.includes(e.calendar));
+
+        const todayEvents = allTodayEvents
+            .filter(e => !e.isAllDay)
+            .sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''))
+            .slice(0, 8)
+            .map(e => ({
+                title:     e.title,
+                startTime: e.startTime || '',
+                endTime:   e.endTime   || '',
+                color:     e.color || 'blue',
+            }));
+
+        // Today's all-day events
+        const allDayEvents = allTodayEvents
+            .filter(e => e.isAllDay)
+            .slice(0, 3)
+            .map(e => ({ title: e.title, color: e.color || 'blue' }));
+
+        // Gather tasks from all periods
+        const weekKey  = getWeekKey(today);
+        const monthKey = getMonthKey(today);
+        const yearKey  = getYearKey(today);
+
+        const dayTasks   = (state.tasks?.day?.[today])       || [];
+        const weekTasks  = (state.tasks?.week?.[weekKey])    || [];
+        const monthTasks = (state.tasks?.month?.[monthKey])  || [];
+        const yearTasks  = (state.tasks?.year?.[yearKey])    || [];
+
+        const allTasks   = [
+            ...dayTasks.map(t   => ({...t, period: 'Day'})),
+            ...weekTasks.map(t  => ({...t, period: 'Week'})),
+            ...monthTasks.map(t => ({...t, period: 'Month'})),
+            ...yearTasks.map(t  => ({...t, period: 'Year'})),
+        ];
+        const tasksDone  = allTasks.filter(t => t.completed).length;
+        const tasksTotal = allTasks.length;
+
+        // Prayer times (from state if loaded)
+        let prayerTimes = null;
+        if (state.prayerTimesForDate) {
+            const pt = state.prayerTimesForDate;
+            prayerTimes = {
+                Fajr:    pt.Fajr    || '',
+                Dhuhr:   pt.Dhuhr   || '',
+                Asr:     pt.Asr     || '',
+                Maghrib: pt.Maghrib || '',
+                Isha:    pt.Isha    || '',
+            };
+        }
+
+        // Hijri date from the label if visible
+        const hijriLabel = document.getElementById('eventDateHijriLabel');
+        const hijriDate  = hijriLabel?.textContent?.trim() || '';
+
+        // Formatted date display
+        const dateObj     = new Date(today + 'T12:00:00');
+        const dateDisplay = dateObj.toLocaleDateString(
+            state.language === 'ar' ? 'ar-SA' : 'en-US',
+            { weekday: 'long', month: 'short', day: 'numeric' }
+        );
+
+        // Task list for widget — all periods, include points and period label
+        const taskListForWidget = allTasks
+            .map((t, i) => ({
+                title:     t.name || t.title || '',
+                completed: !!t.completed,
+                points:    t.points || 0,
+                period:    t.period || 'Day',
+                index:     i,
+            }));
+
+        // Journal data for widget
+        const todayJournal = state.journalEntries?.[today];
+        const journalTitle   = todayJournal?.title   || '';
+        const journalContent = todayJournal?.content || '';
+        const journalScore   = todayJournal?.score   || 0;
+
+        // Journal streak — count consecutive days with entries going back from today
+        let journalStreak = 0;
+        const checkDate = new Date(today + 'T12:00:00');
+        for (let i = 0; i < 365; i++) {
+            const ds = dateToLocalString(checkDate);
+            const entry = state.journalEntries?.[ds];
+            if (entry && (entry.content || entry.title)) {
+                journalStreak++;
+                checkDate.setDate(checkDate.getDate() - 1);
+            } else {
+                break;
+            }
+        }
+
+        // Score data
+        const scoreDay     = calcDayTotal(today);
+        const scoreWeek    = getWeekTotal(today);
+        const scoreMonth   = calcMonthTotal(today);
+        const scoreYear    = calcYearTotal();
+        const scoreAllTime = calcAllTimeTotal();
+
+        // Variables list for score widget
+        const variablesList = Object.entries(state.variables || {})
+            .map(([name, value]) => ({ name, value: String(value) }));
+
+        const payload = {
+            language:    state.language || 'en',
+            dateDisplay,
+            hijriDate,
+            events:      todayEvents,
+            allDayEvents,
+            tasksTotal,
+            tasksDone,
+            taskList:    taskListForWidget,
+            prayerTimes,
+            journalTitle,
+            journalContent,
+            journalScore,
+            journalStreak,
+            scoreDay,
+            scoreWeek,
+            scoreMonth,
+            scoreYear,
+            scoreAllTime,
+            variables:   variablesList,
+        };
+
+        await WP.updateData({ data: JSON.stringify(payload) });
+    } catch(e) {
+        console.warn('[Widget] updateWidgetData failed:', e);
+    }
+}
+
+// ─── Widget debug helper — call widgetDebug() in console ─────────────
+async function widgetDebug() {
+    const WP = _getWidgetPlugin();
+    const lines = [];
+    lines.push('=== Widget Debug ===');
+    lines.push('Capacitor detected: ' + _isCapacitor());
+    lines.push('WidgetPlugin found: ' + (WP ? 'YES' : 'NO'));
+
+    const today = todayLocalString();
+    lines.push('Today: ' + today);
+
+    const todayTasks = (state.tasks?.day?.[today]) || [];
+    lines.push('Tasks today: ' + todayTasks.length);
+    todayTasks.forEach((t,i) => lines.push('  task' + i + ': ' + JSON.stringify(t)));
+
+    const todayEvents = (events || []).filter(e => e.date === today);
+    lines.push('Events today: ' + todayEvents.length);
+
+    lines.push('state.tasks keys: ' + Object.keys(state.tasks || {}));
+    const dayKeys = Object.keys(state.tasks?.day || {});
+    lines.push('state.tasks.day keys: ' + dayKeys.join(', '));
+
+    // Try to push data right now
+    if (WP) {
+        try {
+            await updateWidgetData();
+            lines.push('updateWidgetData() called OK');
+        } catch(e) {
+            lines.push('updateWidgetData() ERROR: ' + e.message);
+        }
+    }
+
+    const out = lines.join('\n');
+    console.log(out);
+    alert(out);
+}
+window.widgetDebug = widgetDebug;
 
 // ══════════════════════════════════════════════════════════════════════════
 // FIREBASE SYNC MODULE
@@ -6659,14 +8424,15 @@ async function _decrypt(doc) {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
-function _getSyncConfig()       { return loadFromStorage(STORAGE_KEYS.SYNC_CONFIG); }
-function _saveSyncConfig(cfg)   { saveToStorage(STORAGE_KEYS.SYNC_CONFIG, cfg); }
-function _getSyncMeta()         { return loadFromStorage(STORAGE_KEYS.SYNC_META) || {}; }
-function _saveSyncMeta(m)       { saveToStorage(STORAGE_KEYS.SYNC_META, m); }
+function _syncKey(base)         { return base + '_' + (state.currentUser || 'default'); }
+function _getSyncConfig()       { return loadFromStorage(_syncKey(STORAGE_KEYS.SYNC_CONFIG)); }
+function _saveSyncConfig(cfg)   { saveToStorage(_syncKey(STORAGE_KEYS.SYNC_CONFIG), cfg); }
+function _getSyncMeta()         { return loadFromStorage(_syncKey(STORAGE_KEYS.SYNC_META)) || {}; }
+function _saveSyncMeta(m)       { saveToStorage(_syncKey(STORAGE_KEYS.SYNC_META), m); }
 
-function getSyncStatus()        { return loadFromStorage(STORAGE_KEYS.SYNC_STATUS) || 'disconnected'; }
+function getSyncStatus()        { return loadFromStorage(_syncKey(STORAGE_KEYS.SYNC_STATUS)) || 'disconnected'; }
 function _setSyncStatus(s) {
-    saveToStorage(STORAGE_KEYS.SYNC_STATUS, s);
+    saveToStorage(_syncKey(STORAGE_KEYS.SYNC_STATUS), s);
     const dot = document.getElementById('syncStatusDot');
     if (dot) dot.className = 'w-2 h-2 rounded-full ' + (
         s === 'connected' ? 'bg-green-500' :
@@ -6939,7 +8705,7 @@ async function disconnectSync() {
     _syncInitialized = false;
     _db = null;
     _saveSyncConfig(null);
-    saveToStorage(STORAGE_KEYS.SYNC_META, null);
+    saveToStorage(_syncKey(STORAGE_KEYS.SYNC_META), null);
     _setSyncStatus('disconnected');
 }
 
@@ -7161,48 +8927,107 @@ function showExitToast() {
 }
 
 // Push a dummy history state so we can intercept popstate (back button)
+function handleAndroidBack() {
+    // Close the topmost open item only — one per back press, highest z-index first
+
+    // Sub-popups (highest layer)
+    if (document.getElementById('pickerPopup'))           { document.getElementById('pickerPopup').remove(); return true; }
+
+    // Equation type picker
+    if (document.getElementById('eqTypePicker'))          { document.getElementById('eqTypePicker').remove(); return true; }
+
+    // Event alarm popup
+    if (document.getElementById('eventAlarmPopup'))       { document.getElementById('eventAlarmPopup').remove(); return true; }
+
+    // Alarm edit screen
+    if (document.getElementById('alarmEditScreen'))       { document.getElementById('alarmEditScreen').remove(); return true; }
+
+    // Standalone alarms panel
+    if (document.getElementById('standaloneAlarmsPanel')) { document.getElementById('standaloneAlarmsPanel').remove(); return true; }
+
+    // Event details modal
+    if (document.getElementById('eventDetailsModal'))     { document.getElementById('eventDetailsModal').remove(); return true; }
+
+    // Day sidebar (journal panel)
+    if ($('daySidebar')?.classList.contains('hidden') === false) { closeDaySidebar(); return true; }
+
+    // Date jump popover
+    if (document.getElementById('dateJumpPopover'))       { document.getElementById('dateJumpPopover').remove(); return true; }
+
+    // Account settings panel
+    if (document.getElementById('accountSettingsPanel'))  { closeAccountSettings(); return true; }
+
+    // Theme picker
+    if (document.getElementById('themePickerModal'))      { closeThemePicker(); return true; }
+
+    // Dynamic modals (created on demand, removed on close)
+    if (document.getElementById('variableSettingsModal')) { closeVariableSettings(); return true; }
+    if (document.getElementById('viewAllTasksModal'))     { document.getElementById('viewAllTasksModal').remove(); return true; }
+    if (document.getElementById('syncModal'))             { document.getElementById('syncModal').remove(); return true; }
+    if (document.getElementById('clearDataModal'))        { closeClearDataModal(); return true; }
+
+    // Static modals (hidden/shown via class)
+    if ($('eventModal')?.classList.contains('hidden') === false)          { closeModal(); return true; }
+    if ($('editSeriesModal')?.classList.contains('hidden') === false)     { closeEditSeriesModal(); return true; }
+    if ($('calendarEditModal')?.classList.contains('hidden') === false)   { closeCalendarEditModal(); return true; }
+    if ($('addCalendarModal')?.classList.contains('hidden') === false)    { closeAddCalendarModal(); return true; }
+    if ($('addAccountModal')?.classList.contains('hidden') === false)     { closeAddAccountModal(); return true; }
+    if ($('deleteAccountModal')?.classList.contains('hidden') === false)  { closeDeleteAccountModal(); return true; }
+    if ($('forgottenTasksModal')?.classList.contains('hidden') === false) { closeForgottenTasks(); return true; }
+    if ($('renderWindowModal')?.classList.contains('hidden') === false)   { closeRenderWindowSettings(); return true; }
+    if ($('locationModal')?.classList.contains('hidden') === false)       { closeLocationSettings(); return true; }
+    if ($('backgroundModal')?.classList.contains('hidden') === false)     { closeBackgroundSettings(); return true; }
+    if ($('searchModal')?.classList.contains('hidden') === false)         { closeSearchModal(); return true; }
+
+    // Left sidebar (mobile — open when it has mobile-open class)
+    if (document.getElementById('mainSidebar')?.classList.contains('mobile-open')) {
+        document.getElementById('mainSidebar').classList.remove('mobile-open');
+        document.getElementById('sidebarOverlay')?.classList.add('hidden');
+        return true;
+    }
+
+    // View navigation — day/month → back to 3-day (week) view
+    if (state.currentView === 'day' || state.currentView === 'month') {
+        switchView('week');
+        return true;
+    }
+
+    return false; // nothing was open
+}
+
 function initBackHandler() {
-    history.pushState({ uwuApp: true }, '');
-    window.addEventListener('popstate', function(e) {
-        // If any modal/panel is open, close it and push state again
-        const anyOpen = document.getElementById('themePickerModal') ||
-            document.getElementById('accountSettingsPanel') ||
-            document.getElementById('dateJumpPopover') ||
-            document.getElementById('eventDetailsModal') ||
-            $('forgottenTasksModal')?.classList.contains('hidden') === false ||
-            $('renderWindowModal')?.classList.contains('hidden') === false ||
-            $('editSeriesModal')?.classList.contains('hidden') === false ||
-            $('locationModal')?.classList.contains('hidden') === false ||
-            $('eventModal')?.classList.contains('hidden') === false;
-
-        if (anyOpen) {
-            // Close everything
-            closeModal();
-            closeThemePicker();
-            closeAccountSettings();
-            document.getElementById('eventDetailsModal')?.remove();
-            const djp = document.getElementById('dateJumpPopover'); if (djp) djp.remove();
-            closeForgottenTasks();
-            closeRenderWindowSettings();
-            closeEditSeriesModal();
-            closeLocationSettings();
-            history.pushState({ uwuApp: true }, '');
-            return;
-        }
-
-        // No modal open — double-back to exit
-        _backPressCount++;
-        if (_backPressCount === 1) {
-            showExitToast();
-            history.pushState({ uwuApp: true }, '');
-            if (_backPressTimer) clearTimeout(_backPressTimer);
-            _backPressTimer = setTimeout(() => { _backPressCount = 0; }, 2200);
-        } else {
-            // Second press — actually go back / exit PWA
-            _backPressCount = 0;
-            history.back();
-        }
-    });
+    if (_isCapacitor() && window.Capacitor?.Plugins?.App) {
+        // Capacitor native: use the App plugin's backButton event
+        // This fires BEFORE Java's onBackPressed and can prevent app exit
+        window.Capacitor.Plugins.App.addListener('backButton', () => {
+            const consumed = handleAndroidBack();
+            if (!consumed) {
+                // Nothing open — minimize the app (go to background)
+                window.Capacitor.Plugins.App.minimizeApp?.();
+            }
+        });
+    } else {
+        // Web/PWA fallback: use popstate
+        history.pushState({ uwuApp: true }, '');
+        window.addEventListener('popstate', function(e) {
+            const consumed = handleAndroidBack();
+            if (consumed) {
+                history.pushState({ uwuApp: true }, '');
+                return;
+            }
+            // No modal open — double-back to exit
+            _backPressCount++;
+            if (_backPressCount === 1) {
+                showExitToast();
+                history.pushState({ uwuApp: true }, '');
+                if (_backPressTimer) clearTimeout(_backPressTimer);
+                _backPressTimer = setTimeout(() => { _backPressCount = 0; }, 2200);
+            } else {
+                _backPressCount = 0;
+                history.back();
+            }
+        });
+    }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -7211,11 +9036,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (state.language === 'ar') applyLanguage();
     initSync();
     initNotifications();
+    setTimeout(updateWidgetData, 2000);
+
+    // Listen for app coming back to foreground — apply any widget +/- score adjustments
+    if (_isCapacitor()) {
+        document.addEventListener('visibilitychange', async () => {
+            if (document.visibilityState !== 'visible') return;
+            try {
+                const AP = _getAlarmPlugin();
+                if (!AP) return;
+                const padj = await AP.getPendingScoreAdjustment();
+                if (!padj || !padj.adjustment || padj.adjustment === 0) return;
+                const todayKey = dateToLocalString(new Date());
+                if (!state.journalEntries[todayKey]) {
+                    state.journalEntries[todayKey] = { score: 0, title: '', content: '', expression: '0' };
+                }
+                const currentScore = state.journalEntries[todayKey].score || 0;
+                const newScore = Math.max(0, currentScore + padj.adjustment);
+                state.journalEntries[todayKey].score      = newScore;
+                state.journalEntries[todayKey].expression = String(newScore);
+                state.journalEntries[todayKey].timestamp  = Date.now();
+                saveJournal();
+                updateHeaderScores();
+                updateWidgetData();
+                renderSidebarContent();
+            } catch(e) {}
+        });
+    }
+
     await initLocation();
     renderWeekView();
     renderMiniCalendar();
     updateTimeIndicator();
-    setInterval(updateTimeIndicator, 60000);
+    setInterval(() => { updateTimeIndicator(); if (state.currentView === 'day') updateDayTimeIndicator(); }, 60000);
     setupEventListeners();
     updateHeaderScores();
     initBackHandler(); // double-back to exit on mobile

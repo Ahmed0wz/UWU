@@ -1494,3 +1494,8 @@ button:focus-visible {
 .lang-ar #headerScores {
     direction: rtl;
 }
+
+/* ── Status bar padding for native Android app ── */
+#appMainHeader {
+    padding-top: 22px !important;
+}

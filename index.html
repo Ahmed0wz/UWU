@@ -106,7 +106,7 @@
         <main class="flex-1 flex flex-col theme-bg-panel transition-colors duration-300 h-full relative">
             
             <!-- Header -->
-            <header class="border-b theme-border px-3 md:px-6 py-3 md:py-4 flex items-center justify-between theme-bg-panel sticky top-0 z-40 gap-2">
+            <header id="appMainHeader" class="border-b theme-border px-3 md:px-6 py-3 md:py-4 flex items-center justify-between theme-bg-panel sticky top-0 z-40 gap-2" >
                 <div class="flex items-center space-x-2 md:space-x-6 min-w-0">
                     <!-- Hamburger (mobile only) -->
                     <button id="hamburgerBtn" onclick="toggleMobileSidebar(event)" class="hidden p-2 hover:theme-bg-tertiary rounded-lg transition-colors flex-shrink-0" aria-label="Open menu">
@@ -197,8 +197,8 @@
     </div>
 
     <!-- Event Modal -->
-    <div id="eventModal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50">
-        <div class="theme-bg rounded-2xl shadow-2xl w-full max-w-lg modal-animate overflow-hidden border theme-border max-h-[90vh] overflow-y-auto">
+    <div id="eventModal" class="fixed inset-0 modal-backdrop hidden items-end sm:items-center justify-center z-50 pb-16 sm:pb-0 px-4 sm:px-0">
+        <div class="theme-bg rounded-2xl shadow-2xl w-full max-w-lg modal-animate overflow-hidden border theme-border max-h-[85vh] flex flex-col">
             <div class="px-6 py-4 border-b theme-border flex items-center justify-between sticky top-0 theme-bg z-10">
                 <h3 class="text-lg font-semibold" id="modalTitle">New Event</h3>
                 <button onclick="closeModal()" class="theme-text-secondary hover:theme-text transition-colors">
@@ -208,7 +208,7 @@
                 </button>
             </div>
             
-            <form id="eventForm" class="p-6 space-y-4">
+            <form id="eventForm" class="p-6 space-y-4 overflow-y-auto flex-1">
                 <!-- Title -->
                 <div>
                     <input type="text" id="eventTitle" placeholder="Add title" data-i18n="addTitle" class="w-full text-xl font-medium placeholder-gray-400 dark:placeholder-gray-600 border-none focus:ring-0 p-0 theme-bg theme-text" required>
@@ -258,30 +258,77 @@
                     </button>
                     
                     <div id="prayerTimeSelector" class="hidden mt-3 space-y-3 pl-8">
+
+                        <!-- START anchor -->
                         <div>
-                            <label class="block text-xs font-medium theme-text-secondary mb-1" data-i18n="prayerTime">Prayer Time</label>
-                            <select id="prayerTimeSelect" class="w-full theme-bg-tertiary border theme-border rounded-md text-sm focus:ring-2 focus:ring-blue-500 theme-text">
-                                <option value="Fajr" data-i18n="Fajr">Fajr</option>
-                                <option value="Sunrise" data-i18n="Sunrise">Sunrise</option>
-                                <option value="Dhuhr" data-i18n="Dhuhr">Dhuhr</option>
-                                <option value="Asr" data-i18n="Asr">Asr</option>
-                                <option value="Maghrib" data-i18n="Maghrib">Maghrib</option>
-                                <option value="Isha" data-i18n="Isha">Isha</option>
-                            </select>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-medium theme-text-secondary mb-1" data-i18n="startOffset">Start Offset (minutes)</label>
-                                <input type="number" id="prayerStartOffset" value="0" step="1" class="w-full theme-bg-tertiary border theme-border rounded-md text-sm focus:ring-2 focus:ring-blue-500 theme-text" placeholder="e.g., 0">
-                                <p class="text-[10px] theme-text-secondary mt-1">0 = exact prayer time. Negative = before, positive = after</p>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-xs font-medium theme-text-secondary" data-i18n="startPrayer">Start prayer</span>
+                                <div class="flex rounded-md overflow-hidden border theme-border text-xs ml-auto">
+                                    <button type="button" id="prayerStartTypePrayer" onclick="setPrayerAnchorType('start','prayer')"
+                                        class="px-2 py-0.5 bg-blue-500 text-white font-medium">🕌</button>
+                                    <button type="button" id="prayerStartTypeTime" onclick="setPrayerAnchorType('start','time')"
+                                        class="px-2 py-0.5 theme-bg-tertiary theme-text">🕐</button>
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-xs font-medium theme-text-secondary mb-1" data-i18n="endOffset">End Offset (minutes)</label>
-                                <input type="number" id="prayerEndOffset" value="30" step="1" class="w-full theme-bg-tertiary border theme-border rounded-md text-sm focus:ring-2 focus:ring-blue-500 theme-text" placeholder="e.g., 30">
+                            <!-- Prayer mode -->
+                            <div id="prayerStartPrayerMode" class="grid grid-cols-2 gap-3">
+                                <select id="prayerStartSelect" onchange="updatePrayerTimeDisplay()" class="w-full theme-bg-tertiary border theme-border rounded-md text-sm focus:ring-2 focus:ring-blue-500 theme-text">
+                                    <option value="Fajr" data-i18n="Fajr">Fajr</option>
+                                    <option value="Sunrise" data-i18n="Sunrise">Sunrise</option>
+                                    <option value="Dhuhr" data-i18n="Dhuhr">Dhuhr</option>
+                                    <option value="Asr" data-i18n="Asr">Asr</option>
+                                    <option value="Maghrib" data-i18n="Maghrib">Maghrib</option>
+                                    <option value="Isha" data-i18n="Isha">Isha</option>
+                                </select>
+                                <div>
+                                    <input type="number" id="prayerStartOffset" value="0" step="1" oninput="updatePrayerTimeDisplay()"
+                                        class="w-full theme-bg-tertiary border theme-border rounded-md text-sm focus:ring-2 focus:ring-blue-500 theme-text" placeholder="e.g., 15">
+                                    <p class="text-[10px] theme-text-secondary mt-1" data-i18n="afterBefore">+ after · − before</p>
+                                </div>
+                            </div>
+                            <!-- Fixed time mode -->
+                            <div id="prayerStartTimeMode" class="hidden">
+                                <input type="time" id="prayerStartFixedTime" value="09:00" oninput="updatePrayerTimeDisplay()"
+                                    class="w-full theme-bg-tertiary border theme-border rounded-md text-sm focus:ring-2 focus:ring-blue-500 theme-text">
                             </div>
                         </div>
+
+                        <!-- END anchor -->
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-xs font-medium theme-text-secondary" data-i18n="endPrayer">End prayer</span>
+                                <div class="flex rounded-md overflow-hidden border theme-border text-xs ml-auto">
+                                    <button type="button" id="prayerEndTypePrayer" onclick="setPrayerAnchorType('end','prayer')"
+                                        class="px-2 py-0.5 bg-blue-500 text-white font-medium">🕌</button>
+                                    <button type="button" id="prayerEndTypeTime" onclick="setPrayerAnchorType('end','time')"
+                                        class="px-2 py-0.5 theme-bg-tertiary theme-text">🕐</button>
+                                </div>
+                            </div>
+                            <!-- Prayer mode -->
+                            <div id="prayerEndPrayerMode" class="grid grid-cols-2 gap-3">
+                                <select id="prayerEndSelect" onchange="updatePrayerTimeDisplay()" class="w-full theme-bg-tertiary border theme-border rounded-md text-sm focus:ring-2 focus:ring-blue-500 theme-text">
+                                    <option value="Fajr" data-i18n="Fajr">Fajr</option>
+                                    <option value="Sunrise" data-i18n="Sunrise">Sunrise</option>
+                                    <option value="Dhuhr" data-i18n="Dhuhr">Dhuhr</option>
+                                    <option value="Asr" data-i18n="Asr">Asr</option>
+                                    <option value="Maghrib" data-i18n="Maghrib">Maghrib</option>
+                                    <option value="Isha" data-i18n="Isha">Isha</option>
+                                </select>
+                                <div>
+                                    <input type="number" id="prayerEndOffset" value="0" step="1" oninput="updatePrayerTimeDisplay()"
+                                        class="w-full theme-bg-tertiary border theme-border rounded-md text-sm focus:ring-2 focus:ring-blue-500 theme-text" placeholder="e.g., -50">
+                                    <p class="text-[10px] theme-text-secondary mt-1" data-i18n="afterBefore">+ after · − before</p>
+                                </div>
+                            </div>
+                            <!-- Fixed time mode -->
+                            <div id="prayerEndTimeMode" class="hidden">
+                                <input type="time" id="prayerEndFixedTime" value="10:00" oninput="updatePrayerTimeDisplay()"
+                                    class="w-full theme-bg-tertiary border theme-border rounded-md text-sm focus:ring-2 focus:ring-blue-500 theme-text">
+                            </div>
+                        </div>
+
                         <div class="text-xs theme-text-secondary bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
-                            Event time: <span id="prayerStartTimeDisplay" class="font-medium">--:--</span> to <span id="prayerEndTimeDisplay" class="font-medium">--:--</span>
+                            <span data-i18n="eventTimePreview">Event time:</span> <span id="prayerStartTimeDisplay" class="font-medium">--:--</span> <span data-i18n="timeTo">to</span> <span id="prayerEndTimeDisplay" class="font-medium">--:--</span>
                         </div>
                     </div>
                 </div>
@@ -382,32 +429,58 @@
                 </div>
 
                 <!-- Reminder -->
+                <!-- Reminder -->
                 <div class="flex items-center space-x-3 text-sm theme-text-secondary">
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                     </svg>
-                    <select id="eventReminder" class="flex-1 theme-bg-tertiary border theme-border rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent theme-text">
-                        <option value="none" data-i18n="reminderNone">No reminder</option>
-                        <option value="0"    data-i18n="reminderAtTime">At event time</option>
-                        <option value="5"    data-i18n="reminder5">5 minutes before</option>
-                        <option value="10"   data-i18n="reminder10">10 minutes before</option>
-                        <option value="15"   data-i18n="reminder15">15 minutes before</option>
-                        <option value="30"   data-i18n="reminder30">30 minutes before</option>
-                        <option value="60"   data-i18n="reminder60">1 hour before</option>
-                        <option value="120"  data-i18n="reminder120">2 hours before</option>
-                        <option value="1440" data-i18n="reminder1440">1 day before</option>
+                    <select id="eventReminder" onchange="toggleAlarmOptions()" class="flex-1 theme-bg-tertiary border theme-border rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent theme-text">
+                        <option value="none">No reminder</option>
+                        <option value="0">At event time</option>
+                        <option value="5">5 minutes before</option>
+                        <option value="10">10 minutes before</option>
+                        <option value="15">15 minutes before</option>
+                        <option value="30">30 minutes before</option>
+                        <option value="60">1 hour before</option>
+                        <option value="120">2 hours before</option>
+                        <option value="1440">1 day before</option>
                     </select>
                 </div>
 
-                <!-- Buttons -->
-                <div class="flex items-center justify-between pt-4 border-t theme-border sticky bottom-0 theme-bg pb-2">
-                    <button type="button" onclick="deleteEvent()" id="deleteBtn" class="text-red-600 hover:text-red-700 text-sm font-medium hidden"><span data-i18n="delete">Delete</span></button>
-                    <div class="flex space-x-3 ml-auto">
-                        <button type="button" onclick="closeModal()" class="px-4 py-2 text-sm font-medium theme-text-secondary hover:theme-bg-tertiary rounded-lg transition-colors"><span data-i18n="cancel">Cancel</span></button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-black dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 rounded-lg transition-colors"><span data-i18n="save">Save</span></button>
+                <!-- Reminder type toggle (shown when reminder is set) -->
+                <div id="reminderTypeRow" class="hidden flex items-center space-x-3 text-sm theme-text-secondary">
+                    <div class="w-5 h-5 shrink-0"></div>
+                    <div class="flex-1 flex rounded-lg border theme-border overflow-hidden">
+                        <button type="button" id="typeNotifBtn" onclick="setReminderType('notification')"
+                            class="flex-1 py-1.5 text-xs font-medium transition-colors theme-text-secondary hover:theme-bg-tertiary">
+                            🔔 Notification
+                        </button>
+                        <button type="button" id="typeAlarmBtn" onclick="setReminderType('alarm')"
+                            class="flex-1 py-1.5 text-xs font-medium transition-colors theme-text-secondary hover:theme-bg-tertiary border-l theme-border">
+                            ⏰ Alarm
+                        </button>
                     </div>
                 </div>
+
+                <!-- Alarm options (shown when type = alarm) — opens popup -->
+                <div id="alarmOptionsRow" class="hidden flex items-center space-x-3 text-sm">
+                    <div class="w-5 h-5 shrink-0"></div>
+                    <button type="button" onclick="openEventAlarmPopup()"
+                        class="flex-1 flex items-center justify-between theme-bg-tertiary border theme-border rounded-lg px-3 py-2 text-xs theme-text hover:theme-bg transition-colors">
+                        <span data-i18n="alarmConfigureAlarm">⚙️ Configure alarm…</span>
+                        <svg class="w-3 h-3 theme-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+
             </form>
+            <!-- Buttons — outside form so they stay visible while form scrolls -->
+            <div class="flex items-center justify-between px-6 py-3 border-t theme-border theme-bg shrink-0">
+                <button type="button" onclick="deleteEvent()" id="deleteBtn" class="text-red-600 hover:text-red-700 text-sm font-medium hidden"><span data-i18n="delete">Delete</span></button>
+                <div class="flex space-x-3 ml-auto">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-sm font-medium theme-text-secondary hover:theme-bg-tertiary rounded-lg transition-colors"><span data-i18n="cancel">Cancel</span></button>
+                    <button type="submit" form="eventForm" class="px-4 py-2 text-sm font-medium text-white bg-black dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 rounded-lg transition-colors"><span data-i18n="save">Save</span></button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -643,7 +716,7 @@
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
             </svg>
-            <span>Prev</span>
+            <span data-i18n="prev">Prev</span>
         </button>
         <button onclick="openModal()" class="mobile-nav-btn mobile-nav-add" aria-label="New Event">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -655,7 +728,7 @@
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
             </svg>
-            <span>Next</span>
+            <span data-i18n="next">Next</span>
         </button>
         <button onclick="goToToday()" class="mobile-nav-btn" aria-label="Today">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -858,6 +931,38 @@
 
 
     <input type="file" id="pfpInput" class="hidden" accept="image/*" onchange="handlePfpUpload(event)">
+
+    <!-- Capacitor (injected by native app, also load manually as fallback) -->
+    <script>
+    // Capacitor is auto-injected by the native WebView; this is a no-op in browser
+    if (!window.Capacitor) window.Capacitor = {};
+    </script>
+
+    <!-- Status bar padding for native app -->
+    <script>
+    (function() {
+        function applyStatusBarPadding() {
+            var header = document.getElementById('appMainHeader');
+            if (!header) return;
+            var isCapacitor = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+            if (isCapacitor) {
+                // Android status bar is typically 24-32dp; use 28px as safe default
+                var statusBarHeight = 28;
+                if (window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar) {
+                    window.Capacitor.Plugins.StatusBar.getInfo().then(function(info) {
+                        // info doesn't give height, use safe area
+                    }).catch(function(){});
+                }
+                header.style.paddingTop = 'calc(0.75rem + ' + statusBarHeight + 'px)';
+            }
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', applyStatusBarPadding);
+        } else {
+            applyStatusBarPadding();
+        }
+    })();
+    </script>
 
     <!-- Service Worker registration -->
     <script>
