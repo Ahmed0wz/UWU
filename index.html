@@ -341,12 +341,20 @@
                     <select id="eventRepeat" class="flex-1 theme-bg-tertiary border theme-border rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent theme-text">
                         <option value="none" data-i18n="doesNotRepeat">Does not repeat</option>
                         <option value="daily" data-i18n="daily">Daily</option>
-                        <option value="weekly" data-i18n="weekly">Weekly</option>
-                        <option value="monthly" data-i18n="monthly">Monthly</option>
-                        <option value="yearly" data-i18n="yearly">Yearly</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
                         <option value="weekdays" data-i18n="weekdays">Every weekday (Mon–Fri)</option>
                         <option value="custom" data-i18n="custom">Custom...</option>
                     </select>
+                </div>
+                <!-- Monthly repeat type: day-of-month vs nth weekday (shown when repeat = monthly) -->
+                <div id="monthlyTypeRow" class="hidden pl-8 space-y-2">
+                    <div class="flex space-x-2">
+                        <button type="button" id="monthlyTypeDayBtn" onclick="setMonthlyType('dayOfMonth')" class="flex-1 py-1.5 px-3 text-xs font-medium rounded-lg border-2 border-blue-500 bg-blue-500/20 text-blue-400 transition-colors">On day 15</button>
+                        <button type="button" id="monthlyTypeNthBtn" onclick="setMonthlyType('nthWeekday')" class="flex-1 py-1.5 px-3 text-xs font-medium rounded-lg border-2 theme-border theme-text-secondary transition-colors">On the 3rd Wed</button>
+                    </div>
+                    <input type="hidden" id="monthlyType" value="dayOfMonth">
                 </div>
                 <!-- Month overflow: shown when repeat = monthly -->
                 <div id="monthlyOverflowRow" class="hidden pl-8 flex items-center space-x-2">
@@ -357,52 +365,114 @@
                     </select>
                 </div>
 
-                <!-- Custom Repeat Options -->
-                <div id="customRepeatOptions" class="hidden pl-8 space-y-3">
-                    <div class="flex items-center space-x-2">
-                        <span class="text-sm">Every</span>
-                        <input type="number" id="repeatInterval" value="1" min="1" class="w-16 theme-bg-tertiary border theme-border rounded-md text-sm focus:ring-2 focus:ring-blue-500 theme-text">
-                        <select id="repeatUnit" class="theme-bg-tertiary border theme-border rounded-md text-sm focus:ring-2 focus:ring-blue-500 theme-text">
-                            <option value="days">days</option>
-                            <option value="weeks">weeks</option>
-                            <option value="months">months</option>
-                            <option value="years">years</option>
-                        </select>
-                    </div>
-                    <div id="repeatOnDays" class="hidden">
-                        <span class="text-sm block mb-2">Repeat on:</span>
-                        <div class="flex space-x-1">
-                            <button type="button" class="repeat-day-btn w-8 h-8 rounded-full border theme-border text-xs font-medium hover:theme-bg-tertiary" data-day="0">S</button>
-                            <button type="button" class="repeat-day-btn w-8 h-8 rounded-full border theme-border text-xs font-medium hover:theme-bg-tertiary" data-day="1">M</button>
-                            <button type="button" class="repeat-day-btn w-8 h-8 rounded-full border theme-border text-xs font-medium hover:theme-bg-tertiary" data-day="2">T</button>
-                            <button type="button" class="repeat-day-btn w-8 h-8 rounded-full border theme-border text-xs font-medium hover:theme-bg-tertiary" data-day="3">W</button>
-                            <button type="button" class="repeat-day-btn w-8 h-8 rounded-full border theme-border text-xs font-medium hover:theme-bg-tertiary" data-day="4">T</button>
-                            <button type="button" class="repeat-day-btn w-8 h-8 rounded-full border theme-border text-xs font-medium hover:theme-bg-tertiary" data-day="5">F</button>
-                            <button type="button" class="repeat-day-btn w-8 h-8 rounded-full border theme-border text-xs font-medium hover:theme-bg-tertiary" data-day="6">S</button>
+                <!-- Custom Repeat Options — shown as summary line when custom is selected -->
+                <div id="customRepeatSummary" class="hidden pl-8">
+                    <button type="button" onclick="openCustomRepeatSheet()" class="text-sm text-blue-400 hover:text-blue-300 transition-colors flex items-center space-x-1">
+                        <span id="customRepeatSummaryText">Every 1 week</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+
+    <!-- Custom Repeat Sheet — Notion Calendar style full-screen -->
+    <div id="customRepeatSheet" class="hidden" style="position:fixed;inset:0;z-index:9999;">
+        <div onclick="closeCustomRepeatSheet()" style="position:absolute;inset:0;background:rgba(0,0,0,0.4);"></div>
+        <div id="customRepeatSheetContent" style="position:absolute;bottom:0;left:0;right:0;height:92vh;background:#000;border-radius:14px 14px 0 0;display:flex;flex-direction:column;overflow:hidden;">
+            <!-- Drag handle -->
+            <div style="display:flex;justify-content:center;padding:8px 0 0;flex-shrink:0;">
+                <div style="width:36px;height:4px;border-radius:2px;background:#555;"></div>
+            </div>
+            <!-- Header -->
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 20px;flex-shrink:0;">
+                <button type="button" onclick="closeCustomRepeatSheet()" style="background:none;border:none;padding:0;cursor:pointer;color:#fff;">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <span id="repeatSheetTitle" style="font-size:18px;font-weight:700;color:#fff;">Repeat</span>
+                <button type="button" onclick="closeCustomRepeatSheet()" id="repeatSheetDone" style="background:#222;border:none;border-radius:20px;padding:7px 18px;font-size:14px;font-weight:600;color:#fff;cursor:pointer;">Done</button>
+            </div>
+            <!-- Body -->
+            <div style="flex:1;overflow-y:auto;padding:0 24px 40px;">
+
+                <!-- Every [N] [unit] -->
+                <div style="display:flex;align-items:baseline;gap:24px;padding:28px 0;">
+                    <span style="font-size:17px;color:#fff;font-weight:500;" data-i18n="every">Every</span>
+                    <span style="display:inline-flex;align-items:center;"><input type="number" id="repeatInterval" value="1" min="1" style="width:36px;text-align:center;background:none;border:none;font-size:17px;color:#fff;padding:0;outline:none;font-weight:500;"></span>
+                    <select id="repeatUnit" style="background:none;border:none;font-size:17px;color:#fff;padding:0;outline:none;font-weight:500;-webkit-appearance:none;appearance:none;">
+                        <option value="days" style="background:#111;color:#fff;" data-i18n="days">days</option>
+                        <option value="weeks" style="background:#111;color:#fff;" data-i18n="weeks">week</option>
+                        <option value="months" style="background:#111;color:#fff;" data-i18n="months">months</option>
+                        <option value="years" style="background:#111;color:#fff;" data-i18n="years">years</option>
+                    </select>
+                </div>
+
+                <!-- Day-of-week circles (shown when unit = weeks) -->
+                <div id="repeatOnDays" class="hidden" style="padding:4px 0 28px;">
+                    <div style="display:flex;align-items:center;gap:20px;">
+                        <span style="font-size:17px;color:#fff;font-weight:500;" data-i18n="on">On</span>
+                        <div style="display:flex;gap:8px;overflow-x:auto;padding:2px 0;">
+                            <button type="button" class="repeat-day-btn" data-day="1" style="width:46px;height:46px;border-radius:50%;font-size:11px;font-weight:700;letter-spacing:0.3px;background:transparent;border:2.5px solid #555;color:#999;cursor:pointer;flex-shrink:0;transition:all 0.15s;">Mon</button>
+                            <button type="button" class="repeat-day-btn" data-day="2" style="width:46px;height:46px;border-radius:50%;font-size:11px;font-weight:700;letter-spacing:0.3px;background:transparent;border:2.5px solid #555;color:#999;cursor:pointer;flex-shrink:0;transition:all 0.15s;">Tues</button>
+                            <button type="button" class="repeat-day-btn" data-day="3" style="width:46px;height:46px;border-radius:50%;font-size:11px;font-weight:700;letter-spacing:0.3px;background:transparent;border:2.5px solid #555;color:#999;cursor:pointer;flex-shrink:0;transition:all 0.15s;">Wed</button>
+                            <button type="button" class="repeat-day-btn" data-day="4" style="width:46px;height:46px;border-radius:50%;font-size:11px;font-weight:700;letter-spacing:0.3px;background:transparent;border:2.5px solid #555;color:#999;cursor:pointer;flex-shrink:0;transition:all 0.15s;">Thur</button>
+                            <button type="button" class="repeat-day-btn" data-day="5" style="width:46px;height:46px;border-radius:50%;font-size:11px;font-weight:700;letter-spacing:0.3px;background:transparent;border:2.5px solid #555;color:#999;cursor:pointer;flex-shrink:0;transition:all 0.15s;">Fri</button>
+                            <button type="button" class="repeat-day-btn" data-day="6" style="width:46px;height:46px;border-radius:50%;font-size:11px;font-weight:700;letter-spacing:0.3px;background:transparent;border:2.5px solid #555;color:#999;cursor:pointer;flex-shrink:0;transition:all 0.15s;">Sat</button>
+                            <button type="button" class="repeat-day-btn" data-day="0" style="width:46px;height:46px;border-radius:50%;font-size:11px;font-weight:700;letter-spacing:0.3px;background:transparent;border:2.5px solid #555;color:#999;cursor:pointer;flex-shrink:0;transition:all 0.15s;">Sun</button>
                         </div>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <span class="text-sm">Ends:</span>
-                        <select id="repeatEndType" class="theme-bg-tertiary border theme-border rounded-md text-sm focus:ring-2 focus:ring-blue-500 theme-text">
-                            <option value="never">Never</option>
-                            <option value="after">After</option>
-                            <option value="on">On date</option>
-                        </select>
-                        <div id="repeatCount" class="hidden flex items-center space-x-1">
-                            <input type="number" value="10" min="1" class="w-16 theme-bg-tertiary border theme-border rounded-md text-sm focus:ring-2 focus:ring-blue-500 theme-text" id="repeatCountInput">
-                            <span class="text-sm">occurrences</span>
-                        </div>
-                        <input type="date" id="repeatEndDate" class="hidden theme-bg-tertiary border theme-border rounded-md text-sm focus:ring-2 focus:ring-blue-500 theme-text">
-                    </div>
-                    <!-- Month overflow option: only shown when unit = months -->
-                    <div id="monthOverflowRow" class="hidden flex items-center space-x-2">
-                        <span class="text-sm">When month is too short:</span>
-                        <select id="monthOverflow" class="theme-bg-tertiary border theme-border rounded-md text-sm focus:ring-2 focus:ring-blue-500 theme-text">
-                            <option value="snap">Use last day of month</option>
-                            <option value="skip">Skip that month</option>
-                        </select>
                     </div>
                 </div>
+
+                <!-- Monthly repeat type (shown when unit = months) -->
+                <div id="customMonthlyTypeRow" class="hidden" style="padding:4px 0 24px;">
+                    <div style="display:flex;gap:10px;">
+                        <button type="button" id="customMonthlyTypeDayBtn" onclick="setMonthlyType('dayOfMonth')" style="flex:1;padding:11px 16px;font-size:14px;font-weight:600;border-radius:10px;border:2px solid #3b82f6;background:rgba(59,130,246,0.12);color:#60a5fa;cursor:pointer;">On day 15</button>
+                        <button type="button" id="customMonthlyTypeNthBtn" onclick="setMonthlyType('nthWeekday')" style="flex:1;padding:11px 16px;font-size:14px;font-weight:600;border-radius:10px;border:2px solid #333;background:none;color:#888;cursor:pointer;">On the 3rd Wed</button>
+                    </div>
+                </div>
+
+                <!-- Month overflow (shown when unit = months, dayOfMonth only) -->
+                <div id="monthOverflowRow" class="hidden" style="align-items:baseline;gap:20px;padding:4px 0 24px;">
+                    <span style="font-size:16px;color:#888;">If short</span>
+                    <select id="monthOverflow" style="background:none;border:none;font-size:16px;color:#fff;padding:0;outline:none;-webkit-appearance:none;appearance:none;">
+                        <option value="snap" style="background:#111;color:#fff;">Use last day of month</option>
+                        <option value="skip" style="background:#111;color:#fff;">Skip that month</option>
+                    </select>
+                </div>
+
+                <!-- Ends -->
+                <div style="padding:24px 0 0;">
+                    <span style="font-size:17px;color:#fff;font-weight:500;" data-i18n="ends">Ends</span>
+
+                    <!-- Never -->
+                    <div style="display:flex;align-items:center;gap:20px;padding:24px 0;" onclick="setRepeatEndType('never')">
+                        <span id="repeatEndNeverRadio" style="width:26px;height:26px;border-radius:50%;border:2.5px solid #3b82f6;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;"><span style="width:13px;height:13px;border-radius:50%;background:#3b82f6;"></span></span>
+                        <span style="font-size:17px;color:#fff;" data-i18n="never">Never</span>
+                    </div>
+
+                    <!-- On date -->
+                    <div style="display:flex;align-items:center;gap:20px;padding:24px 0;" onclick="setRepeatEndType('on')">
+                        <span id="repeatEndOnRadio" style="width:26px;height:26px;border-radius:50%;border:2.5px solid #555;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;"></span>
+                        <span style="font-size:17px;color:#fff;" data-i18n="onDate">On</span>
+                        <input type="date" id="repeatEndDate" onclick="event.stopPropagation()" style="background:none;border:none;font-size:16px;color:#888;outline:none;">
+                    </div>
+
+                    <!-- After N times -->
+                    <div style="display:flex;align-items:center;gap:20px;padding:24px 0;" onclick="setRepeatEndType('after')">
+                        <span id="repeatEndAfterRadio" style="width:26px;height:26px;border-radius:50%;border:2.5px solid #555;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;"></span>
+                        <span style="font-size:17px;color:#fff;" data-i18n="after">After</span>
+                        <input type="number" value="4" min="1" id="repeatCountInput" onclick="event.stopPropagation()" style="width:36px;text-align:center;background:none;border:none;font-size:17px;color:#fff;padding:0;outline:none;font-weight:500;">
+                        <span style="font-size:17px;color:#888;" data-i18n="times">times</span>
+                    </div>
+                </div>
+
+            </div>
+            <!-- Hidden select for form logic -->
+            <select id="repeatEndType" class="hidden">
+                <option value="never" selected>Never</option>
+                <option value="after">After</option>
+                <option value="on">On date</option>
+            </select>
+        </div>
+    </div>
+
 
                 <!-- Points -->
                 <div class="flex items-center space-x-3 text-sm theme-text-secondary">
@@ -702,7 +772,20 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="js/constants.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/hijri.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/events-modal.js"></script>
+    <script src="js/events-ui.js"></script>
+    <script src="js/views.js"></script>
+    <script src="js/tasks.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/alarms.js"></script>
+    <script src="js/sync.js"></script>
 
     <!-- Mobile Bottom Navigation (hidden on desktop) -->
     <nav id="mobileBottomNav" class="mobile-bottom-nav md:hidden">
@@ -710,7 +793,7 @@
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
             </svg>
-            <span data-i18n="settings">Menu</span>
+            <span data-i18n="navMenu">Menu</span>
         </button>
         <button onclick="navigatePrev()" class="mobile-nav-btn" aria-label="Previous">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -722,7 +805,7 @@
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
-            <span data-i18n="newEvent">Add</span>
+            <span data-i18n="navAdd">Add</span>
         </button>
         <button onclick="navigateNext()" class="mobile-nav-btn" aria-label="Next">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -741,7 +824,7 @@
                 <circle cx="12" cy="12" r="4" stroke-width="2"/>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
             </svg>
-            <span data-i18n="prayerTimes">Prayer</span>
+            <span data-i18n="navPrayer">Prayer</span>
         </button>
     </nav>
 

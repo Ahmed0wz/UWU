@@ -2,12 +2,25 @@
 // SERVICE WORKER — Calendar PWA
 // ============================================
 
-const CACHE_NAME = 'calendar-v11';
+const CACHE_NAME = 'calendar-v12';
 const BASE = 'https://ahmed0wz.github.io/UWU/';
 
 const APP_SHELL = [
     BASE + 'index.html',
-    BASE + 'app.js',
+    BASE + 'js/constants.js',
+    BASE + 'js/state.js',
+    BASE + 'js/hijri.js',
+    BASE + 'js/storage.js',
+    BASE + 'js/data.js',
+    BASE + 'js/events-modal.js',
+    BASE + 'js/events-ui.js',
+    BASE + 'js/views.js',
+    BASE + 'js/tasks.js',
+    BASE + 'js/navigation.js',
+    BASE + 'js/settings.js',
+    BASE + 'js/notifications.js',
+    BASE + 'js/alarms.js',
+    BASE + 'js/sync.js',
     BASE + 'styles.css',
     BASE + 'manifest.json',
     BASE + 'icon.png'
